@@ -9,10 +9,6 @@
 
 Remove_Cell_Cycle<-function(data, species){
 
-  #TODO: incorp this into package
-  #x <- c(1:10)
-  #CCtable=read.table("/Users/car6wn/Documents/Projects/DoubletDetection/SpeciesList.txt", sep="\t", header=TRUE, stringsAsFactors = FALSE)
-  #devtools::use_data(CCtable)
   IDtype=which(apply(CCtable, 2, function(x) any(grepl(paste0("\\<", species, "\\>"), x))))
 
   if(IDtype>0){

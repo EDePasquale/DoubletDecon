@@ -8,7 +8,6 @@
 #' @return isADoublet - data.frame with each cell as a row and whether it is called a doublet by deconvolution analysis.
 #' @return resultsreadable - data.frame with results of deconvolution analysis (cell by cluster) in percentages.
 #' @keywords doublet deconvolution decon
-#' @export
 
 Is_A_Doublet2<-function(data, newMedoids, groups, synthProfiles){
 

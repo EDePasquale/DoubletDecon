@@ -80,7 +80,7 @@ Recluster<-function(isADoublet, data, recluster, groups){
 
     #create new reordered expression file for return
     newData=data[,match(row.names(newGroups), colnames(data)) ]
-    if(colnames(data)[1] %in% "row_clusters.flat"){
+    if(colnames(data)[1] %in% "row_clusters.flat" || colnames(data)[1] %in% "row_clusters-flat"){
       newData2=Clean_Up_Input(newData, newGroups, data[2:nrow(data), 1])
     }else{
       newData2=Clean_Up_Input(newData, newGroups)

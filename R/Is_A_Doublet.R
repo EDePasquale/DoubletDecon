@@ -38,21 +38,20 @@ Is_A_Doublet<-function(data, newMedoids, groups, synthProfiles){
   #this section determines the profile with the highest correlation to the given cell and determines if it is one of the doublet profiles
   for(cell in 1:nrow(isADoublet)){
     correlations=apply(allProfiles, 1, cor, resultsreadable[cell,])
-    maxCorrelations=sort(correlations, decreasing = T)[1:2]
-    maxCorrelation1=which(correlations==maxCorrelations[1])
-    maxCorrelation2=which(correlations==maxCorrelations[2])
-    #chosenCorrelation=min(maxCorrelation1, maxCorrelation2)
+    sortCorrelations=sort(correlations, decreasing = T)[1:2]
+    maxCorrelation1=which(correlations==sortCorrelations[1])
+    maxCorrelation2=which(correlations==sortCorrelations[2])
     chosenCorrelation=maxCorrelation1
     isADoublet[cell,1]=correlations[chosenCorrelation]
     correlatedCluster=row.names(allProfiles)[chosenCorrelation]
     isADoublet[cell,2]=correlatedCluster
     if(chosenCorrelation>length(unique(groups[,2]))){
-    #if((chosenCorrelation>length(unique(groups[,2]))))&(maxCorrelation1-maxCorrelation2 >= 0.1)){
       isADoublet[cell,3]=TRUE
     }else{
       isADoublet[cell,3]=FALSE
     }
   }
+
   isADoublet[,4]=groups[,2]
 
   colnames(isADoublet)=c("Correlation","Cell_Types","isADoublet","Group_Cluster")

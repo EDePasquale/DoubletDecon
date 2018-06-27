@@ -3,13 +3,13 @@
 #' This function is used for the calculation of blacklisted medoids and groups. It calculates medoids. It performs medoid correlations. It creates the binary correlation table between medoids, otherwise known as the blacklist. It makes a blacklist heatmap. It makes a blacklist heatmap. It makes new medoids based on blacklisted combined clusters. It makes a new groups file based on the blacklisted combined clusters.
 #' @param data  Processed data from Clean_Up_Input (or Remove_Cell_Cycle)
 #' @param groups Processed groups file from Clean_Up_Input
-#' @param corrCutoff x in mean*x*SD to determine upper cutoff for correlation in the blacklist. Default is 1.
+#' @param rhop x in mean*x*SD to determine upper cutoff for correlation in the blacklist. Default is 1.
 #' @return newMedoids - new medoids data.frame for the new combined blacklisted clusters.
 #' @return newGroups - new groups file containing cluster assignment based on new combined blacklisted clusters.
 #' @keywords blacklist correlation
 #' @export
 
-Blacklist_Groups<-function(data, groups, corrCutoff){
+Blacklist_Groups<-function(data, groups, rhop){
 
   #Step 1: calculate medoids
   medoids=data.frame(rep(NA,nrow(data)-1))
@@ -25,7 +25,7 @@ Blacklist_Groups<-function(data, groups, corrCutoff){
 
   #Step 3: create blacklist (binary correlation table between medoids)
   blacklist=data.frame(matrix(ncol=ncol(medoids),nrow=ncol(medoids)))
-  cutoff=mean(cormedoids)+(corrCutoff)*sd(cormedoids) #based on mean + 1SD * user provided multiplier
+  cutoff=mean(cormedoids)+(rhop)*sd(cormedoids) #based on mean + 1SD * user provided multiplier
   for(rrow in 1:nrow(cormedoids)){
     for(ccol in 1:ncol(cormedoids)){
       if(cormedoids[rrow,ccol]>cutoff){
@@ -45,7 +45,8 @@ Blacklist_Groups<-function(data, groups, corrCutoff){
                       Rowv=TRUE, #no clustering of rows
                       xlab = "Cell Types", #x axis title
                       ylab =  "Cell Types", #y axis title
-                      main = paste0("Blacklist ", corrCutoff)) #main title
+                      trace="none",
+                      main = "Blacklist") #main title
   blacklist_original_order=blacklist_original_order[BLheatmap$rowInd,BLheatmap$colInd]
   blacklist=blacklist[BLheatmap$rowInd,BLheatmap$colInd]
 
@@ -74,7 +75,7 @@ Blacklist_Groups<-function(data, groups, corrCutoff){
   for(cluster in 1:nunique){
     temp=which(blacklistCluster==uniquelist[cluster])
     temp1.5=as.integer(row.names(blacklist_original_order)[temp])
-    temp2=groups[groups$V2 %in% temp1.5,]
+    temp2=groups[groups[,2] %in% temp1.5,]
     temp3=cbind(temp2,rep(paste(rownames(blacklist)[temp], collapse="-"), nrow(temp2)))
     colnames(temp3)=colnames(newGroups)
     newGroups=rbind(newGroups, temp3)

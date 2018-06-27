@@ -11,7 +11,7 @@
 
 Clean_Up_Input<-function(rawData, groups, rowClusters=NULL){
 
-  if(row.names(rawData)[1] %in% "column_clusters-flat" && colnames(rawData)[1] %in% "row_clusters.flat"){ #standard ICGS, contains column and row clusters
+  if(row.names(rawData)[1] %in% "column_clusters-flat" && (colnames(rawData)[1] %in% "row_clusters.flat" || colnames(rawData)[1] %in% "row_clusters-flat")){ #standard ICGS, contains column and row clusters
 
     rawDataStrip=rawData[-1,]
     processed=rbind(c(NA,groups[,1]),rawDataStrip) #replace with provided groups file
@@ -25,7 +25,7 @@ Clean_Up_Input<-function(rawData, groups, rowClusters=NULL){
     processed=cbind(rep(NA, nrow(processed)), processed)
     colnames(processed)[1]="row_clusters.flat"
 
-  }else if(colnames(rawData)[1] %in% "row_clusters.flat"){ #only has row clusters
+  }else if(colnames(rawData)[1] %in% "row_clusters.flat" || colnames(rawData)[1] %in% "row_clusters-flat"){ #only has row clusters
 
     processed=rbind(c(NA,groups[,1]),rawData) #replace with provided groups file
     row.names(processed)[1]="column_clusters-flat"
