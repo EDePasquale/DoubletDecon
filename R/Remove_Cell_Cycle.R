@@ -10,7 +10,7 @@
 Remove_Cell_Cycle<-function(data, species){
 
   IDtype=which(apply(CCtable, 2, function(x) any(grepl(paste0("\\<", species, "\\>"), x))))
-
+  ccclust=0
   if(IDtype>0){
     #Find the row containing species name information for the provided species
     IDrow=which(apply(CCtable, 1, function(x) any(grepl(paste0("\\<", species, "\\>"), x))))
@@ -25,9 +25,11 @@ Remove_Cell_Cycle<-function(data, species){
       KEGGresultsCC=nrow(subset(KEGGresults, KEGGresults$Description=="Cell cycle"))
       if(KEGGresultsCC>0){
         data=subset(data, (data[,1]!=rowCluster | is.na(data[,1]))) #Remove the cell cycle cluster, is.na() required so we don't lose the "column_clusters-flat" row
+        ccclust=ccclust+1
       }
     }
   }
+  print(paste0(ccclust, " cell cycle clusters removed"))
 
   return(data)
 }

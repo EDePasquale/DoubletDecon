@@ -59,6 +59,24 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   og_processed_data=data$processed
   rowgroups=data$groups
 
+  #Check for sparsity
+  #print("Checking for sparsity...")
+  centroid_flag=FALSE
+  if(!is.na(data$processed[2,1])){
+    temp=apply(data$processed[2:nrow(data$processed), 2:ncol(data$processed)], 1, median)
+    temp2=cbind(temp, data$processed[2:nrow(data$processed), 1])
+    for(geneclust in 1:length(unique(temp2[,2]))){ #by cluster, if a gene cluster has a high amount of 0s for its mediod then move all medoids to centroids
+      temp3=temp2[which(temp2[,2]==geneclust),]
+      temp4=length(which(temp3[,1]==0))/length(temp3[,1])
+      if(temp4>0.9){
+        #centroid_flag=TRUE
+      }
+    }
+  }
+  if(centroid_flag==TRUE){
+    print("High sparsity in dataset, moving to centroids...")
+  }
+
   #Original data heatmap
   if(heatmap==TRUE){
     print("Creating original data heatmap...")
@@ -98,7 +116,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
 
   #Calculate medoids, medoid correlations, blacklist to create new combine medoids
   print("Combining similar clusters...")
-  BL=Blacklist_Groups(data, groups, rhop)
+  BL=Blacklist_Groups(data, groups, rhop, centroid_flag)
   newMedoids=BL$newMedoids
   groupsMedoids=BL$newGroups
 
@@ -109,7 +127,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   sink()
 
   #Calculate doublets using DeconRNASeq
-  print("Step 1: Remove possible doublets...")
+  print("Step 1: Removing possible doublets...")
   sink("/dev/null") #hides DeconRNASeq output
   doubletTable=Is_A_Doublet(data, newMedoids, groups, synthProfiles)
   sink()
@@ -139,7 +157,11 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   #Run Pseudo Marker Finder to identify clusters with no unique gene expression
   print("Step 3: Rescuing cells with unique gene expression...")
   if(useFull==TRUE){
-    full_data=read.table(fullDataFile, sep="\t",header=T, row.names=1)
+    if(class(fullDataFile)=="character"){
+      full_data=read.table(fullDataFile, sep="\t",header=T, row.names=1)
+    }else{
+      full_data=fullDataFile
+    }
     full_data2=Clean_Up_Input(full_data, groups)$processed
     PMFresults=Pseudo_Marker_Finder(groups, data, full_data2) #TODO: Not sure what to do about the groups here...
   }else{
@@ -248,8 +270,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
               groups_processed=groups,
               DRS_doublet_table=doubletTable$isADoublet,
               DRS_results=doubletTable$resultsreadable,
-              PMF_results_1=PMFresults$hallmarkTable,
-              PMF_results_2=PMFresults$hallmarkTable2,
+              PMF_results=PMFresults,
               Decon_called_freq=DeconCalledFreq,
               Final_doublets_groups=finalDoubletCellCall,
               Final_nondoublets_groups=finalNotDoubletCellCall,

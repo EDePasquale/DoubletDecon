@@ -66,7 +66,7 @@ Pseudo_Marker_Finder<-function(groups, data, full_data2){
     temp3=apply(data[,which(data[1,]==temp1 | data[1,]==temp2)],2,as.numeric)
 
     #Make sure that there is more than 1 cell in the cluster and save p-value for t-test
-    if(ncol(as.data.frame(temp3[,which(temp3[1,]==temp1)])) >1 & ncol(as.data.frame(temp3[,which(temp3[1,]==temp2)])) >1){ #May still need this
+    if(ncol(as.data.frame(temp3[,which(temp3[1,]==temp1)])) >1 & ncol(as.data.frame(temp3[,which(temp3[1,]==temp2)])) >1 & temp[1]!=temp[2]){
       temp4=t.test(temp3[gene+1, which(temp3[1,]==temp1)], temp3[gene+1, which(temp3[1,]==temp2)])$p.value
     }else{
       temp4=NA

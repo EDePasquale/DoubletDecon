@@ -24,33 +24,40 @@ Seurat_Pre_Process <- function(expressionFile, genesFile, clustersFile){
   clusters2=clusters[order(clusters$x),]
 
   #Reorder columns
-  expression2=expression[clusters2$X]
+  expression=expression[as.character(clusters2$X)]
 
   #Reorder genes file based on gene cluster number (this will be the new order for the genes)
   genes2=genes[order(genes$cluster),]
 
   #Subset expression file for genes in the genes file
-  expression3=expression2[row.names(expression2) %in% as.character(genes$gene),]
+  allgenes=expression
+  expression=expression[row.names(expression) %in% as.character(genes$gene),]
 
   #Reorder genes
-  geneOrder=intersect(genes2$gene, as.character(row.names(expression3)))
-  expression4=expression3[match(geneOrder, row.names(expression3)),]
+  geneOrder=intersect(genes2$gene, as.character(row.names(expression)))
+  expression=expression[match(geneOrder, row.names(expression)),]
 
   #Add columnn_clusters-flat
-  expression5=rbind(clusters2[,2], expression4)
-  row.names(expression5)[1]="column_clusters-flat"
+  allgenes=rbind(clusters2[,2], allgenes)
+  expression=rbind(clusters2[,2], expression)
+  row.names(genes2)[1]="column_clusters-flat"
+  row.names(expression)[1]="column_clusters-flat"
 
   #Add row_clusters-flat
   genes3=genes2[match(geneOrder, genes2$gene),]
   rowToAdd=c(NA, genes3$cluster)
-  expression6=cbind(rowToAdd, expression5)
-  colnames(expression6)[1]="row_clusters-flat"
+  rowToAdd2=rep(NA, nrow(allgenes))
+  expression=cbind(rowToAdd, expression)
+  allgenes=cbind(rowToAdd2, allgenes)
+  colnames(expression)[1]="row_clusters-flat"
+  colnames(allgenes)[1]="row_clusters-flat"
 
   #Make groups file
-  groups=cbind(as.numeric(expression6[1,2:ncol(expression6)]), as.numeric(expression6[1,2:ncol(expression6)]))
-  row.names(groups)=as.character(colnames(expression6)[2:ncol(expression6)])
+  groups=cbind(as.numeric(expression[1,2:ncol(expression)]), as.numeric(expression[1,2:ncol(expression)]))
+  row.names(groups)=as.character(colnames(expression)[2:ncol(expression)])
 
-  return(list(newExpressionFile=expression6,
+  return(list(newExpressionFile=expression,
+              newFullExpressionFile=allgenes,
               newGroupsFile=groups))
 }
 
