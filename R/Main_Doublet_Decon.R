@@ -102,9 +102,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   #Remove cell cycle gene cluster (optional)
   if(removeCC==TRUE){
     print("Removing cell cycle clusters...")
-    sink("/dev/null") #hides mygene output
     data=Remove_Cell_Cycle(data$processed, species)
-    sink()
   }else{
     data=data$processed
   }

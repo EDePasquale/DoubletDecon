@@ -17,7 +17,9 @@ Remove_Cell_Cycle<-function(data, species){
 
     for(rowCluster in 1:(length(unique(data[2:nrow(data),1]))-1)){
       genes=rownames(subset(data[2:nrow(data),], data[2:nrow(data),1]==rowCluster)) #get the genes for the row cluster
+      sink("/dev/null") #hides mygene output
       geneEquiv=queryMany(genes, species=CCtable[IDrow,4], fields="entrezgene", scopes="symbol", return.as="DataFrame") #convert to entrezid
+      sink()
       entrezIDs=geneEquiv@listData$entrezgene #grab entrezids
       KEGGresults=enrichKEGG(entrezIDs, organism=CCtable[IDrow,3], pvalueCutoff=0.05, pAdjustMethod="BH", qvalueCutoff=0.1) #submit entrezids for KEGG enrichment
 
