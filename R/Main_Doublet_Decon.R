@@ -10,7 +10,7 @@
 #' @param species Species as scientific species name, KEGG ID, three letter	species abbreviation, or NCBI ID. Default is "mmu".
 #' @param rhop x in mean+x*SD to determine upper cutoff for correlation in the blacklist. Default is 1.
 #' @param write Write output files as .txt files. Default is TRUE.
-#' @param recluster Recluster deconvolution classified doublets and non-doublets deperately using hopach. Default is FALSE.
+#' @param recluster Recluster deconvolution classified doublets and non-doublets seperately using hopach or deconvolution classifications.
 #' @param PMF Use step 2 (unique gene expression) in doublet determination criteria. Default is TRUE.
 #' @param useFull Use full gene list for PMF analysis. Requires fullDataFile. Default is FALSE.
 #' @param heatmap Boolean value for whether to generate heatmaps. Default is TRUE. Can be slow to datasets larger than ~3000 cells.
@@ -27,7 +27,7 @@
 #' @export
 
 #Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, recluster="none", isADoublet=1, PMF=TRUE){
-Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDataFile=NULL, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, recluster="none", PMF=TRUE, useFull=FALSE, heatmap=TRUE){
+Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDataFile=NULL, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, recluster="doublets_decon", PMF=TRUE, useFull=FALSE, heatmap=TRUE){
 
   #load required packages
   require(DeconRNASeq)
@@ -134,22 +134,15 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
     write.table(doubletTable$resultsreadable, paste0(location, "DRS_results_", filename, ".txt"), sep="\t")
   }
 
-  #Recluster doublets and non-doublets with HOPACH (optional)
+  #Recluster doublets and non-doublets
   print("Step 2: Re-clustering possible doublets...")
-  if(recluster!="none"){
-    reclusteredData=Recluster(doubletTable$isADoublet, data, recluster, groups)
-    if(length(reclusteredData)<2){
-      recluster=reclusteredData
-      #do nothing
-    }else{
-      data=reclusteredData$newData2$processed
-      groups=reclusteredData$newData2$groups
-      if(write==TRUE){
-        write.table(data, paste0(location, "data_processed_reclust_", filename, ".txt"), sep="\t")
-        write.table(groups, paste0(location, "groups_processed_reclust_", filename, ".txt"), sep="\t")
-      }
+  reclusteredData=Recluster(doubletTable$isADoublet, data, recluster, groups)
+  data=reclusteredData$newData2$processed
+  groups=reclusteredData$newData2$groups
+    if(write==TRUE){
+      write.table(data, paste0(location, "data_processed_reclust_", filename, ".txt"), sep="\t")
+      write.table(groups, paste0(location, "groups_processed_reclust_", filename, ".txt"), sep="\t")
     }
-  }
 
 
   #Run Pseudo Marker Finder to identify clusters with no unique gene expression

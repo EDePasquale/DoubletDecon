@@ -22,25 +22,7 @@ Recluster<-function(isADoublet, data, recluster, groups){
   doubletCellsData=t(as.matrix(doubletCellsData))
   notDoubletCellsData=t(as.matrix(notDoubletCellsData))
 
-  if(length(doubletCells)<2){ #no doublets called (or 1 doublet cell)
-
-    recluster="none"
-    print("I HIT THIS! RECLUSTER SET TO NONE!")
-    return(recluster=recluster)
-
-  }else{ #more than 1 doublet called
-
-    if(recluster=="all_hopach"){
-
-      #non doublets groups
-      nondoublets=Hopach_and_Heatmap(partialData=notDoubletCellsData, fullData=data, groups=groups, filename=paste0(location, "hopach.output_nondoublet.txt"))
-      nondoublets[,2]=paste0("nondoublet-",nondoublets[,2])
-      #doublets groups
-      doublets=Hopach_and_Heatmap(partialData=doubletCellsData, fullData=data, groups=groups, filename=paste0(location, "hopach.output_doublet.txt"))
-      doublets[,1]=doublets[,1]+length(unique(nondoublets[,1]))
-      doublets[,2]=paste0("doublet-",doublets[,2])
-
-    }else if(recluster=="doublets_hopach"){
+  if(recluster=="doublets_hopach"){
 
       #non doublets groups
       nondoublets=groups[notDoubletCells,]
@@ -49,7 +31,7 @@ Recluster<-function(isADoublet, data, recluster, groups){
       doublets[,1]=doublets[,1]+length(unique(nondoublets[,1]))
       doublets[,2]=paste0("doublet-",doublets[,2])
 
-    }else if(recluster=="doublets_decon"){
+  }else if(recluster=="doublets_decon"){
 
       #non doublets groups
       nondoublets=groups[notDoubletCells,]
@@ -88,6 +70,6 @@ Recluster<-function(isADoublet, data, recluster, groups){
 
     return(list(newData2=newData2, decon=DeconCalledFreq, recluster=recluster))
 
-  }
+
 
 }
