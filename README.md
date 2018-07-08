@@ -7,10 +7,12 @@ A cell-state aware tool for removing doublets from single-cell RNA-seq data
 
 # Usage #
 
+```javascript
 Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
   fullDataFile = NULL, removeCC = FALSE, species = "mmu", rhop = 1,
   write = TRUE, recluster = "doublets_decon", PMF = TRUE,
   useFull = FALSE, heatmap = TRUE)
+```
 
 # Arguments #
 
