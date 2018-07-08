@@ -2,6 +2,8 @@
 
 A cell-state aware tool for removing doublets from single-cell RNA-seq data
 
+![logo](http://www.altanalyze.org/DoubletDecon/wordcloud.png)
+
 
 # Usage #
 
