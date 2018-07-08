@@ -4,14 +4,16 @@
 \alias{Blacklist_Groups}
 \title{Blacklist Groups}
 \usage{
-Blacklist_Groups(data, groups, corrCutoff)
+Blacklist_Groups(data, groups, rhop, centroid_flag)
 }
 \arguments{
 \item{data}{Processed data from Clean_Up_Input (or Remove_Cell_Cycle)}
 
 \item{groups}{Processed groups file from Clean_Up_Input}
 
-\item{corrCutoff}{x in mean*x*SD to determine upper cutoff for correlation in the blacklist. Default is 1.}
+\item{rhop}{x in mean+x*SD to determine upper cutoff for correlation in the blacklist. Default is 1.}
+
+\item{centroid_flag}{use centroids if data is sparse}
 }
 \value{
 newMedoids - new medoids data.frame for the new combined blacklisted clusters.

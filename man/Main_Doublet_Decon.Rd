@@ -4,37 +4,44 @@
 \alias{Main_Doublet_Decon}
 \title{Main DoubletDecon}
 \usage{
-Main_Doublet_Decon(rawDataFile, groupsFile, filename, removeCC = FALSE,
-  species = "mmu", corrCutoff = 1, write = TRUE, recluster = "none",
-  isADoublet = 1)
+Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
+  fullDataFile = NULL, removeCC = FALSE, species = "mmu", rhop = 1,
+  write = TRUE, recluster = "doublets_decon", PMF = TRUE,
+  useFull = FALSE, heatmap = TRUE)
 }
 \arguments{
-\item{rawDataFile}{Name of file containing expression data (gene by cell)}
+\item{rawDataFile}{Name of file containing ICGS or Seurat expression data (gene by cell)}
 
 \item{groupsFile}{Name of file containing group assignments (3 column: cell, group(numeric), group(numeric or character))}
 
-\item{filename}{Unique filename to be incorporated into the names of outputs from the functions}
+\item{filename}{Unique filename to be incorporated into the names of outputs from the functions.}
+
+\item{location}{Directory where output should be stored}
+
+\item{fullDataFile}{Name of file containing full expression data (gene by cell). Default is NULL.}
 
 \item{removeCC}{Remove cell cycle gene cluster by KEGG enrichment. Default is FALSE.}
 
 \item{species}{Species as scientific species name, KEGG ID, three letter    species abbreviation, or NCBI ID. Default is "mmu".}
 
-\item{corrCutoff}{x in mean*x*SD to determine upper cutoff for correlation in the blacklist. Default is 1.}
+\item{rhop}{x in mean+x*SD to determine upper cutoff for correlation in the blacklist. Default is 1.}
 
 \item{write}{Write output files as .txt files. Default is TRUE.}
 
-\item{recluster}{Recluster deconvolution classified doublets and non-doublets deperately using hopach. Default is FALSE.}
+\item{recluster}{Recluster deconvolution classified doublets and non-doublets seperately using hopach or deconvolution classifications.}
 
-\item{isADoublet}{Use Decon Correlation method (1) or Two Percentages method (2). Default is 2.}
+\item{PMF}{Use step 2 (unique gene expression) in doublet determination criteria. Default is TRUE.}
+
+\item{useFull}{Use full gene list for PMF analysis. Requires fullDataFile. Default is FALSE.}
+
+\item{heatmap}{Boolean value for whether to generate heatmaps. Default is TRUE. Can be slow to datasets larger than ~3000 cells.}
 }
 \value{
 data_processed - new expression file (cleaned).
 
 groups_processed = new groups file (cleaned).
 
-PMF_results_1 = pseudo marker finder t statistics (gene by cluster).
-
-PMF_results_2 = pseudo marker finder gene assignments (which cluster has the highest t-stat for each gene).
+PMF_results = pseudo marker finder t-test results (gene by cluster).
 
 DRS_doublet_table = each cell and whether it is called a doublet by deconvolution analysis.
 

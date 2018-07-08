@@ -16,8 +16,7 @@
 #' @param heatmap Boolean value for whether to generate heatmaps. Default is TRUE. Can be slow to datasets larger than ~3000 cells.
 #' @return data_processed - new expression file (cleaned).
 #' @return groups_processed = new groups file (cleaned).
-#' @return PMF_results_1 = pseudo marker finder t statistics (gene by cluster).
-#' @return PMF_results_2 = pseudo marker finder gene assignments (which cluster has the highest t-stat for each gene).
+#' @return PMF_results = pseudo marker finder t-test results (gene by cluster).
 #' @return DRS_doublet_table = each cell and whether it is called a doublet by deconvolution analysis.
 #' @return DRS_results = results of deconvolution analysis (cell by cluster) in percentages.
 #' @return Decon_called_freq = percentage of doublets called in each cluster by deconvolution analysis.

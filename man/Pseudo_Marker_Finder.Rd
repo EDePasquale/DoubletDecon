@@ -4,12 +4,14 @@
 \alias{Pseudo_Marker_Finder}
 \title{Pseudo MarkerFinder}
 \usage{
-Pseudo_Marker_Finder(groups, data)
+Pseudo_Marker_Finder(groups, data, full_data2)
 }
 \arguments{
 \item{groups}{Processed groups file from Clean_Up_Input.}
 
 \item{data}{Processed data from Clean_Up_Input (or Remove_Cell_Cycle).}
+
+\item{full_data2}{Variable for passing the full gene expression matrix.}
 }
 \value{
 hallmarkTable - pseudo marker finder t statistics (gene by cluster).

@@ -1,9 +1,9 @@
 #' Seurat Pre Process
 #'
 #' This function uses t-tests to look for unique gene expression in each cluster.
-#' @param expressionFile
-#' @param genesFile
-#' @param clustersFile
+#' @param expressionFile Normalized expression file from Seurat
+#' @param genesFile Gene list from Seurat
+#' @param clustersFile Cluster list from Seurat
 #' @return newExpressionFile - Seurat expression file in ICGS format
 #' @return newGroupsFile - Groups file ICGS format
 #' @keywords Seurat
