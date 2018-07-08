@@ -4,8 +4,52 @@ A cell-state aware tool for removing doublets from single-cell RNA-seq data
 
 ![logo](http://www.altanalyze.org/DoubletDecon/wordcloud.png)
 
+See our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for more information on DoubletDecon.
+
+
+# Installation
+
+```javascript
+devtools::install_github('EDePasquale/DoubletDecon')
+```
+
+# Dependencies # 
+
+DoubletDecon requires the following R packages:
+
+* DeconRNASeq
+* gplots
+* dplyr
+* MCL
+* clusterProfiler
+* mygene
+* hopach
+* as.color
+
+Additionally, the use of the cell cycle removal option requires an internet connection.
+
 
 # Usage #
+
+## Seurat data only: ##
+
+```javascript
+Seurat_Pre_Process(expressionFile, genesFile, clustersFile)
+```
+
+#### Arguments ####
+
+* expressionFile: Normalized expression matrix as a .txt file from Seurat's NormalizeData() function
+* genesFile: Top marker gene list as a .txt file from Seurat's top_n() function
+* clustersFile: Cluster identities as a .txt file from Seurat object @ident 
+
+
+#### Value ####
+
+* newExpressionFile - Seurat expression file in ICGS format (used as 'rawDataFile')
+* newGroupsFile - Groups file ICGS format (used as 'groupsFile')
+
+## Seurat and ICGS data: ##
 
 ```javascript
 Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
@@ -14,7 +58,7 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
   useFull = FALSE, heatmap = TRUE)
 ```
 
-# Arguments #
+#### Arguments ####
 
 * rawDataFile: Name of file containing ICGS or Seurat expression data (gene by cell)
 * groupsFile: Name of file containing group assignments (3 column: cell, group(numeric), group(numeric or character))
@@ -30,7 +74,7 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 * useFull: Use full gene list for PMF analysis. Requires fullDataFile. Default is FALSE.
 * heatmap: Boolean value for whether to generate heatmaps. Default is TRUE. Can be slow to datasets larger than ~3000 cells.
 
-# Value #
+#### Value ####
 
 * data_processed = new expression file (cleaned).
 * groups_processed = new groups file (cleaned).
@@ -40,7 +84,3 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 * Decon_called_freq = percentage of doublets called in each cluster by deconvolution analysis.
 * Final_doublets_groups = new groups file containing only doublets.
 * Final_nondoublets_groups = new groups file containing only non doublets.
-
-# More Information #
-
-See our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for more information on DoubletDecon.
