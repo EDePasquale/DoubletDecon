@@ -37,4 +37,6 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 * Final_doublets_groups = new groups file containing only doublets.
 * Final_nondoublets_groups = new groups file containing only non doublets.
 
+# More Information #
+
 See our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for more information on DoubletDecon.
