@@ -1,5 +1,7 @@
-DoubletDecon
+# DoubletDecon #
+
 A tool for removing doublets from single-cell RNA-seq data
+
 
 Usage
 Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
