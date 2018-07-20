@@ -6,5 +6,14 @@ Description: This package is designed to identify doublets in single-cell RNA-se
 Depends: R (>= 3.4.2)
 License: MIT
 Encoding: UTF-8
-LazyData: true
+biocViews:
+Imports: DeconRNASeq,
+  gplots,
+  dplyr,
+  MCL,
+  clusterProfiler,
+  mygene,
+  hopach,
+  as.color
+LazyData: TRUE
 RoxygenNote: 6.0.1.9000

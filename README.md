@@ -9,7 +9,12 @@ See our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for m
 
 # Installation
 
-```javascript
+Run the following code to install the package using devtools:
+
+```
+if(!require(devtools)){
+  install.packages("devtools") # If not already installed
+}
 devtools::install_github('EDePasquale/DoubletDecon')
 ```
 
@@ -25,6 +30,14 @@ DoubletDecon requires the following R packages:
 * mygene
 * hopach
 * as.color
+
+These can be installed with:
+
+```
+source("https://bioconductor.org/biocLite.R")
+biocLite(c("DeconRNASeq", "clusterProfiler", "hopach", "mygene"))
+install.packages("MCL", "as.color")
+```
 
 Additionally, the use of the cell cycle removal option requires an internet connection.
 
