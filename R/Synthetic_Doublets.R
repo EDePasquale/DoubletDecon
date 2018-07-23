@@ -5,17 +5,18 @@
 #' @param groups Processed groups file from Clean_Up_Input.
 #' @param groupsMedoids New groups file based on blacklisted clusters from Blacklist_Groups
 #' @param newMedoids New combined medoids from Blacklist_groups.
+#' @param num_doubs The user defined number of doublets to make for each pair of clusters
 #' @return averagesAverages - average deconvolution profiles for each combination of cell types.
 #' @keywords synthetic
 #' @export
 
-Synthetic_Doublets<-function(data, groups, groupsMedoids, newMedoids){
+Synthetic_Doublets<-function(data, groups, groupsMedoids, newMedoids, num_doubs){
 
   #Override the original groups for making synthetics with groups based on the blacklisted clusters
   groups=groupsMedoids
 
   #Number of doublets created per cluster pair
-  ndub=30
+  ndub=num_doubs
 
   #Make data frame to hold new doublets (30 per combination of clusters)
   pairs=combn(unique(groups[,2]), 2)

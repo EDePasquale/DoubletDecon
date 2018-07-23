@@ -14,6 +14,8 @@
 #' @param PMF Use step 2 (unique gene expression) in doublet determination criteria. Default is TRUE.
 #' @param useFull Use full gene list for PMF analysis. Requires fullDataFile. Default is FALSE.
 #' @param heatmap Boolean value for whether to generate heatmaps. Default is TRUE. Can be slow to datasets larger than ~3000 cells.
+#' @param centroids Use centroids as references in deconvolution instead of the default medoids.
+#' @param num_doubs The user defined number of doublets to make for each pair of clusters. Default is 30.
 #' @return data_processed - new expression file (cleaned).
 #' @return groups_processed = new groups file (cleaned).
 #' @return PMF_results = pseudo marker finder t-test results (gene by cluster).
@@ -26,7 +28,7 @@
 #' @export
 
 #Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, recluster="none", isADoublet=1, PMF=TRUE){
-Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDataFile=NULL, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, recluster="doublets_decon", PMF=TRUE, useFull=FALSE, heatmap=TRUE){
+Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDataFile=NULL, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, recluster="doublets_decon", PMF=TRUE, useFull=FALSE, heatmap=TRUE, centroids=FALSE, num_doubs=30){
 
   #load required packages
   require(DeconRNASeq)
@@ -58,22 +60,29 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   og_processed_data=data$processed
   rowgroups=data$groups
 
+  #TODO: work in progress
   #Check for sparsity
   #print("Checking for sparsity...")
-  centroid_flag=FALSE
-  if(!is.na(data$processed[2,1])){
-    temp=apply(data$processed[2:nrow(data$processed), 2:ncol(data$processed)], 1, median)
-    temp2=cbind(temp, data$processed[2:nrow(data$processed), 1])
-    for(geneclust in 1:length(unique(temp2[,2]))){ #by cluster, if a gene cluster has a high amount of 0s for its mediod then move all medoids to centroids
-      temp3=temp2[which(temp2[,2]==geneclust),]
-      temp4=length(which(temp3[,1]==0))/length(temp3[,1])
-      if(temp4>0.9){
-        #centroid_flag=TRUE
-      }
-    }
-  }
-  if(centroid_flag==TRUE){
-    print("High sparsity in dataset, moving to centroids...")
+  # centroid_flag=FALSE
+  # if(!is.na(data$processed[2,1])){
+  #   temp=apply(data$processed[2:nrow(data$processed), 2:ncol(data$processed)], 1, median)
+  #   temp2=cbind(temp, data$processed[2:nrow(data$processed), 1])
+  #   for(geneclust in 1:length(unique(temp2[,2]))){ #by cluster, if a gene cluster has a high amount of 0s for its mediod then move all medoids to centroids
+  #     temp3=temp2[which(temp2[,2]==geneclust),]
+  #     temp4=length(which(temp3[,1]==0))/length(temp3[,1])
+  #     if(temp4>0.9){
+  #       centroid_flag=TRUE
+  #     }
+  #   }
+  # }
+  # if(centroid_flag==TRUE){
+  #   print("High sparsity in dataset, moving to centroids...")
+  # }
+
+  if(centroids==TRUE){
+    centroid_flag=TRUE
+  }else{
+    centroid_flag==FALSE
   }
 
   #Original data heatmap
@@ -120,7 +129,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   #Create synthetic doublets to get average synthetic profiles
   print("Creating synthetic doublet profiles...")
   sink("/dev/null") #hides DeconRNASeq output
-  synthProfiles=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids)
+  synthProfiles=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs)
   sink()
 
   #Calculate doublets using DeconRNASeq
