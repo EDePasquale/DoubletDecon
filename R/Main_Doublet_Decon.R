@@ -82,7 +82,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   if(centroids==TRUE){
     centroid_flag=TRUE
   }else{
-    centroid_flag==FALSE
+    centroid_flag=FALSE
   }
 
   #Original data heatmap
