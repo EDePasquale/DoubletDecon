@@ -128,15 +128,23 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
 
   #Create synthetic doublets to get average synthetic profiles
   print("Creating synthetic doublet profiles...")
-  sink("/dev/null") #hides DeconRNASeq output
-  synthProfiles=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs)
-  sink()
+  if(.Platform$OS.type=="unix"){
+    sink("/dev/null") #hides DeconRNASeq output
+    synthProfiles=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs)
+    sink()
+  }else{
+    synthProfiles=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs)
+  }
 
   #Calculate doublets using DeconRNASeq
   print("Step 1: Removing possible doublets...")
-  sink("/dev/null") #hides DeconRNASeq output
-  doubletTable=Is_A_Doublet(data, newMedoids, groups, synthProfiles)
-  sink()
+  if(.Platform$OS.type=="unix"){
+    sink("/dev/null") #hides DeconRNASeq output
+    doubletTable=Is_A_Doublet(data, newMedoids, groups, synthProfiles)
+    sink()
+  }else{
+    doubletTable=Is_A_Doublet(data, newMedoids, groups, synthProfiles)
+  }
   if(write==TRUE){
     write.table(doubletTable$isADoublet, paste0(location, "DRS_doublet_table_", filename, ".txt"), sep="\t")
     write.table(doubletTable$resultsreadable, paste0(location, "DRS_results_", filename, ".txt"), sep="\t")

@@ -106,16 +106,17 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 Data for this example can be found in this GitHub, and in combination with the below function calls, can reproduce the results from Figure 5 (Identification of Experimentally Verified Doublets from PBMC) of the bioRxiv pre-print.
 
 ```javascript
-expressionFile="counts.txt"
-genesFile="Top50Genes.txt"
-clustersFile="Cluster.txt"
+location="/Users/xxx/xxx/" #Update as needed 
+expressionFile=paste0(location, "counts.txt")
+genesFile=paste0(location, "Top50Genes.txt")
+clustersFile=paste0(location, "Cluster.txt")
 
 newFiles=Seurat_Pre_Process(expressionFile, genesFile, clustersFile)
 
 results=Main_Doublet_Decon(rawDataFile=newFiles$newExpressionFile, 
                            groupsFile=newFiles$newGroupsFile, 
                            filename="PBMC_example", 
-                           location="/Users/xxx/xxx/", #Update as needed 
+                           location=location,
                            fullDataFile=NULL, 
                            removeCC=FALSE, 
                            species="hsa", 
