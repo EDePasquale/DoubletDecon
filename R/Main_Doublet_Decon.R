@@ -50,7 +50,6 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   cat(paste0("species: ",species), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("rhop: ",rhop), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("write: ",write), file=log_file_name, append=TRUE, sep="\n")
-  cat(paste0("recluster: ",recluster), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("PMF: ",PMF), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("useFull: ",useFull), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("heatmap: ",heatmap), file=log_file_name, append=TRUE, sep="\n")
