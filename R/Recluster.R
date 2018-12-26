@@ -54,6 +54,6 @@ Recluster<-function(isADoublet, data, groups, log_file_name){
     newData2=Clean_Up_Input(newData, newGroups, rowClusters = NULL , log_file_name = log_file_name)
   }
 
-  return(list(newData2=newData2, decon=DeconCalledFreq, recluster=recluster))
+  return(list(newData2=newData2, decon=DeconCalledFreq))
 
 }
