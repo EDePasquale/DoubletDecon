@@ -6,6 +6,17 @@ A cell-state aware tool for removing doublets from single-cell RNA-seq data
 
 See our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for more information on DoubletDecon.
 
+# Updates - Version 1.0.1 : December 26th, 2018 #
+
+ * Additional "Remove" step option to create synthetic doublet centroids with 30%/70% and 70%/30% parent cell contribution instead of simply 50%/50% (only50=FALSE).
+ * Heatmap generation corrected for large datasets (>5000 cells).
+ * "Rescue" step modification from t-tests for all clusters to ANOVA with Tukey post-hoc test in only putative doublet clusters. Minimum of 4 unique genes as hardcoded default.
+ * "Rescue" step now allows for sampling of clusters evenly or proportional to cluster size when using the full expression matrix.
+ * Hopach removed as a "Recluster" option; does not work with improved "Rescue" step. Subsequently removed the DeconCalledFreq table as written and returned output.
+ * Log file is generated with a unique ID for each run of DoubletDecon.
+ * Catch error in mcl() function and quits DoubletDecon with warning to choose a different rhop value.
+ * Synthetic doublet deconvolution values output for quality control (Synth_doublet_info)
+
 
 # Installation #
 
@@ -67,8 +78,8 @@ Seurat_Pre_Process(expressionFile, genesFile, clustersFile)
 ```javascript
 Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
   fullDataFile = NULL, removeCC = FALSE, species = "mmu", rhop = 1,
-  write = TRUE, recluster = "doublets_decon", PMF = TRUE,
-  useFull = FALSE, heatmap = TRUE, centroids=FALSE, num_doubs=30)
+  write = TRUE, PMF = TRUE, useFull = FALSE, heatmap = TRUE, centroids=FALSE, num_doubs=30, 
+  downsample="none", sample_num=NULL, only50=TRUE)
 ```
 
 #### Arguments ####
@@ -88,6 +99,9 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 * heatmap: Boolean value for whether to generate heatmaps. Default is TRUE. Can be slow to datasets larger than ~3000 cells.
 * centroids: Use centroids as references in deconvolution instead of the default medoids.
 * num_doubs: The user defined number of doublets to make for each pair of clusters. Default is 30.
+* downsample: allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".
+* sample_num: number of cells per cluster with downsampling with "even", percent of cluster with "prop".
+* only50: use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is TRUE.
 
 #### Value ####
 
@@ -99,11 +113,14 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 * Decon_called_freq = percentage of doublets called in each cluster by deconvolution analysis.
 * Final_doublets_groups = new groups file containing only doublets.
 * Final_nondoublets_groups = new groups file containing only non doublets.
+* Synth_doublet_info = synthetic doublet deconvolution values output for quality control.
 
 
 # Example #
 
 Data for this example can be found in this GitHub, and in combination with the below function calls, can reproduce the results from Figure 5 (Identification of Experimentally Verified Doublets from PBMC) of the bioRxiv pre-print.
+
+Update: This figure may change for the final publication as some of the functions work differently in Version 1.0.1. The example will still work but it will no longer exactly match the preprint.
 
 ```javascript
 location="/Users/xxx/xxx/" #Update as needed 
@@ -122,10 +139,12 @@ results=Main_Doublet_Decon(rawDataFile=newFiles$newExpressionFile,
                            species="hsa", 
                            rhop=1.1, 
                            write=TRUE, 
-                           recluster="doublets_decon", 
                            PMF=TRUE, 
                            useFull=FALSE, 
                            heatmap=FALSE,
                            centroids=TRUE,
-                           num_doubs=100)
+                           num_doubs=100, 
+                           downsample="none",
+                           sample_num=NULL,
+                           only50=TRUE)
 ```                           

@@ -5,12 +5,13 @@
 #' @param groups Processed groups file from Clean_Up_Input
 #' @param rhop x in mean+x*SD to determine upper cutoff for correlation in the blacklist. Default is 1.
 #' @param centroid_flag use centroids if data is sparse
+#' @param log_file_name used for saving run notes to log file
 #' @return newMedoids - new medoids data.frame for the new combined blacklisted clusters.
 #' @return newGroups - new groups file containing cluster assignment based on new combined blacklisted clusters.
 #' @keywords blacklist correlation
 #' @export
 
-Blacklist_Groups<-function(data, groups, rhop, centroid_flag){
+Blacklist_Groups<-function(data, groups, rhop, centroid_flag, log_file_name){
 
   #Step 1: calculate medoids
   medoids=data.frame(rep(NA,nrow(data)-1))
@@ -56,7 +57,11 @@ Blacklist_Groups<-function(data, groups, rhop, centroid_flag){
   blacklist=blacklist[BLheatmap$rowInd,BLheatmap$colInd]
 
   #Step 5: make new medoids
-  blacklistCluster=mcl(blacklist, addLoops=FALSE)$Cluster
+  blacklistCluster=try(mcl(blacklist, addLoops=FALSE)$Cluster)
+  if(class(blacklistCluster) == "try-error"){
+    print("Unable to perform mcl function for blacklist clustering, please try a different rhop.")
+    stop()
+  }
   i=-1 #if the cluster is 0 (meaning no combining) change the name of the cluster to make it unique
   for(cluster in 1:length(blacklistCluster)){
     if(blacklistCluster[cluster]==0){
@@ -92,6 +97,8 @@ Blacklist_Groups<-function(data, groups, rhop, centroid_flag){
   newGroups=newGroups[-1,]
   newGroups[,2]=as.integer(as.factor(newGroups[,3]))
   newGroups=newGroups[,-1]
+
+  cat(paste0("New blacklisted clusters: ", paste(unique(newGroups[,2]), sep="' '", collapse=", ")), file=log_file_name, append=TRUE, sep="\n")
 
 
   return(list(newMedoids=newMedoids, newGroups=newGroups))

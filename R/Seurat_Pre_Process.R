@@ -16,6 +16,10 @@ Seurat_Pre_Process <- function(expressionFile, genesFile, clustersFile){
   genes=read.table(genesFile, sep="\t",header=T, row.names=1)
   clusters=read.table(clustersFile, sep="\t",header=T)
 
+  #Find and replace "-"
+  colnames(expression)=gsub("-",".",colnames(expression))
+  clusters[,1]=gsub("-",".",clusters[,1])
+
   #Start cluster numbers at 1
   genes$cluster=genes$cluster+1
   clusters$x=clusters$x+1
@@ -60,5 +64,3 @@ Seurat_Pre_Process <- function(expressionFile, genesFile, clustersFile){
               newFullExpressionFile=allgenes,
               newGroupsFile=groups))
 }
-
-

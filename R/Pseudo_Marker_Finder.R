@@ -1,107 +1,139 @@
+#' @export
 #' Pseudo MarkerFinder
 #'
-#' This function uses t-tests to look for unique gene expression in each cluster.
+#' This function uses ANOVA to look for unique gene expression in each possible doublet cluster.
 #' @param groups Processed groups file from Clean_Up_Input.
 #' @param data Processed data from Clean_Up_Input (or Remove_Cell_Cycle).
-#' @param full_data2 Variable for passing the full gene expression matrix.
-#' @return hallmarkTable - pseudo marker finder t statistics (gene by cluster).
-#' @return hallmarkTable2 - pseudo marker finder gene assignments (which cluster has the highest t-stat for each gene).
-#' @keywords Marker Finder ttest
-#' @export
+#' @param full_data2 cleaned full expression matrix from Clean_Up_Input.
+#' @param downsample allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".
+#' @param sample_num number of cells per cluster with downsampling with "even", percent of cluster with "prop".
+#' @param log_file_name used for saving run notes to log file
+#' @return new_table - non-doublet clusters, as determined by the "Remove" and "Rescue" steps.
+#' @keywords Marker Finder ANOVA
 
-Pseudo_Marker_Finder<-function(groups, data, full_data2){
+Pseudo_Marker_Finder<-function(groups, data, full_data2, downsample="none", sample_num=NULL, log_file_name){
 
-  #Save mean expression matrix  by cluster
+  #Define possible doublet clusters
+  doublets=cbind(unique(groups[grep("even|one|two", groups[,2]),1]),unique(groups[grep("even|one|two", groups[,2]),1]))
+
+  #Deal with full data
   if(!is.null(full_data2)){
-    centroids=data.frame(rep(NA,(nrow(full_data2)-1)))
-    data2=apply(full_data2, 2,  as.numeric)
-  }else{
-    centroids=data.frame(rep(NA,(nrow(data)-1)))
-    data2=apply(data, 2,  as.numeric)
+    data=full_data2
   }
 
-  clusters=length(unique(groups[,1]))
-
-  for(cluster in 1:clusters){
-    if(is.matrix(data2[2:nrow(data2),which(data2[1,]==cluster)])){
-      centroids=cbind(centroids,apply(data2[2:nrow(data2),which(data2[1,]==cluster)],1,mean))
-    }else{
-      centroids=cbind(centroids,data2[2:nrow(data2),which(data2[1,]==cluster)])
-    }
-  }
-  centroids=centroids[,-1]
-  colnames(centroids)=unique(groups[,2])
+  #Reduce gene list with full data file based on FC cutoffs and minimum expression values
   if(!is.null(full_data2)){
-    row.names(centroids)=row.names(full_data2)[2:nrow(full_data2)]
+    matrix_data=apply(as.matrix(data[2:nrow(data), 2:ncol(data)]),2,as.numeric)
+    keep.exprs1 <- rowSums(matrix_data)>0 #minimum expression values by gene, currently needs to be expressed at all in any cell
+    f=as.factor(as.character(data[1,2:ncol(data)]))
+    i <- split(1:ncol(matrix_data), f)
+    x <- sapply(i, function(i){ #this function gives mean values for each gene per cluster
+      if(!is.null(nrow(matrix_data[,i]))){
+        rowMeans(matrix_data[,i])
+      }else{
+        as.numeric(matrix_data[,i])
+      }
+    })
+    x=log2(x+1)
+    j <- combn(levels(f), 2)
+    ret<-x[,j[1,]]-x[,j[2,]] #vectorized log fold change operation
+    colnames(ret)=paste(j[1,], j[2,], sep = '-')
+    max_log_fc=apply(abs(ret),1,max)
+    keep.exprs2 <- max_log_fc>=log2(1.5)
+    data=data[c(1, (which(keep.exprs1==TRUE & keep.exprs2==TRUE)+1)),] #reduce to genes that pass both filters
+  }
+
+  #Deal with downsampling
+  new_data=matrix(nrow=nrow(data), ncol=1)
+  row.names(new_data)=row.names(data)
+  new_data[,1]=data[,1]
+  if(downsample=="even"){
+    for(i in 1:length(unique(groups[,2]))){
+      index_cells=which(data[1,]==i)
+      if(length(index_cells)==1){
+        cells=as.data.frame(data[,index_cells], stringsAsFactors=FALSE)
+      }else{
+        cells=data[,index_cells]
+      }
+      colnames(cells)=colnames(data)[index_cells]
+      if(ncol(cells)>sample_num){
+        new_cells=sample(cells, sample_num)
+      }else{
+        new_cells=cells
+      }
+      new_data=cbind(new_data,new_cells)
+    }
+  }else if(downsample=="prop"){
+    for(i in 1:length(unique(groups[,2]))){
+      index_cells=which(data[1,]==i)
+      if(length(index_cells)==1){
+        cells=as.data.frame(data[,index_cells], stringsAsFactors=FALSE)
+      }else{
+        cells=data[,index_cells]
+      }
+      colnames(cells)=colnames(data)[index_cells]
+      new_cells=sample(cells, ceiling(ncol(cells)*sample_num))
+      new_data=cbind(new_data,new_cells)
+    }
   }else{
-    row.names(centroids)=row.names(data)[2:nrow(data)]
+    new_data=data
   }
 
-  if(!is.null(full_data2)){
-    flag=TRUE
-    sendingData=full_data2
-  }else{
-    flag=FALSE
-    sendingData=data
+  #Non-doublet clusters vs doublet clusters
+  doub_clusters=as.numeric(unique(doublets[,1]))
+  non_doub_clusters=as.numeric(unique(groups[which(!(as.numeric(groups[,1]) %in% doub_clusters)),1]))
+
+  #Create table to store p-values
+  hallmarkTable=as.data.frame(matrix(ncol=length(doub_clusters), nrow=nrow(new_data)-1), row.names = row.names(new_data)[2:nrow(new_data)])
+
+  #ANOVA testing
+  helper_PMF_a <-function(ind, doub_clust_test, temp_data){
+    gene_data=as.data.frame(cbind(as.numeric(temp_data[ind,]),as.numeric(temp_data[1,])))
+    gene_data[,2]<-factor(gene_data[,2])
+    colnames(gene_data)=c("Sabor", "Tipo")
+    a1=aov(Sabor ~ Tipo, gene_data)
+    if((!is.na(summary(a1)[[1]][["Pr(>F)"]][1])) & summary(a1)[[1]][["Pr(>F)"]][1]<0.05){ #if anova is significant, move to next step
+      posthoc <- TukeyHSD(x=a1, conf.level=0.95) #do post hoc test
+      doub_posthoc <- posthoc[["Tipo"]][,"p adj"][grep(doub_clust_test, names(posthoc[["Tipo"]][,"p adj"]))] #pull out all post hoc results containing the doublet cluster
+      if(length(which(doub_posthoc<0.05))==(length(unique(gene_data$Tipo))-1)){ #if the doublet cluster is significantly different from all other clusters, move to next step
+        mean_results=sort(tapply(gene_data$Sabor, gene_data$Tipo, mean), decreasing=TRUE) #get the mean for all clusters, and sort in decreasing order
+        if(names(mean_results[1])==doub_clust_test){ #if the doublet cluster has the highest expression then call it as a non doublet cluster
+          return(min(doub_posthoc))
+        }
+      }
+    }
+    return(NA)
   }
 
-  new_table=as.data.frame(matrix(nrow=nrow(centroids),ncol=3))
-  colnames(new_table)=c("Gene", "Cluster", "P-value")
-
-  helper_PMF <-function(gene, centroids, sendingData, flag){
-    data=sendingData
-
-    temp=sort(centroids[gene, ], TRUE)[1:2]
-
-    #Find highest and next highest cluster
-    if(temp[1]==temp[2]){
-      temp1=which(as.numeric(centroids[gene,])==as.numeric(temp[1]))[1]
-      temp2=which(as.numeric(centroids[gene,])==as.numeric(temp[1]))[2]
-    }else{
-      temp1=min(which(as.numeric(centroids[gene,])==as.numeric(temp[1])))#use min here in case there are 2 that have the same value as it doen't matter which one I pick
-      temp2=min(which(as.numeric(centroids[gene,])==as.numeric(temp[2])))
-    }
-
-    #Pull values each and do a t-test
-    temp3=apply(data[,which(data[1,]==temp1 | data[1,]==temp2)],2,as.numeric)
-
-    #Make sure that there is more than 1 cell in the cluster and save p-value for t-test
-    if(ncol(as.data.frame(temp3[,which(temp3[1,]==temp1)])) >1 & ncol(as.data.frame(temp3[,which(temp3[1,]==temp2)])) >1 & temp[1]!=temp[2]){
-      temp4=t.test(temp3[gene+1, which(temp3[1,]==temp1)], temp3[gene+1, which(temp3[1,]==temp2)])$p.value
-    }else{
-      temp4=NA
-    }
-
-    #Track progress
-    setTxtProgressBar(pb, gene)
-    # if(gene %% 100 == 0){
-    #   print(paste0(gene, temp4))
-    # }
-
-    #If the p-value is significant, save the gene and cluster info
-    if(!is.na(temp4) & temp4 <= 0.05){
-      new_table[gene, 1]<<-row.names(centroids)[gene]
-      new_table[gene, 2]<<-temp1
-      new_table[gene, 3]<<-temp4
-    }
+  #Helper function for the ANOVA testing
+  helper_PMF_a_temp <- function(ind, doub_clust_test){
+    gene_data=as.data.frame(cbind(as.numeric(temp_data[ind,]),as.numeric(temp_data[1,])))
+    gene_data[,2]<-factor(gene_data[,2])
+    colnames(gene_data)=c("Sabor", "Tipo")
+    return(NA)
   }
 
-  #TODO: this is the slow part
-  pb <- txtProgressBar(min = 1,
-                        max = nrow(centroids),
-                        initial = 0,
-                        char = "=",
-                        width = NA,
-                        style = 3,
-                        file = "")
-  sapply(1:nrow(centroids), #For all genes
-          helper_PMF, #Function
-          centroids, #genes by centroids
-          sendingData, #expression data (either full or ICGS/Seurat)
-          flag) #TRUE if sending full data
-  close(pb)
 
-  new_table=new_table[complete.cases(new_table), ]
+  #Check for unique expression in each of the possible doublet clusters
+  rows=2:nrow(new_data)
+  new_data2=apply(as.matrix(new_data),2,as.numeric)
+  clust <- makeCluster(detectCores()) #variable number of cores depending on the system
+  for(newCluster in 1:length(doub_clusters)){
+    print(paste0("Processing cluster ", newCluster, "/", length(doub_clusters), "..."))
+    doub_clust_test=doub_clusters[newCluster] #which doublet cluster are we testing for unique gene expression
+    temp_data=new_data2[,which(new_data2[1,] %in% non_doub_clusters | new_data2[1,]==doub_clust_test)] #pull all cells that are part of that doublet cluster or any non-doublet cluster
+    hallmarkTable[,newCluster]=parSapply(clust, rows, helper_PMF_a, doub_clust_test, temp_data)
+  }
+  stopCluster(clust)
+
+  #Determine which clusters are considered to have unique expression
+  colnames(hallmarkTable)=as.character(doub_clusters)
+  unique_genes_by_cluster=sapply(1:ncol(hallmarkTable), function(x) length(which(!is.na(hallmarkTable[,x]))))
+  unique_rescued_clusters=colnames(hallmarkTable)[which(unique_genes_by_cluster>=4)] #min 4 genes unique
+  all_rescued_clusters=c(as.character(unique_rescued_clusters), as.character(non_doub_clusters))
+  new_table=as.data.frame(matrix(ncol=2, nrow=length(all_rescued_clusters)))
+  new_table[,2]=all_rescued_clusters
 
   return(new_table)
+
 }

@@ -10,3 +10,4 @@ Renumber<-function(x){
   y=as.integer(as.factor(as.numeric(x)))
   return(y)
 }
+

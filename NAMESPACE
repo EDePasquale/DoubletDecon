@@ -2,7 +2,7 @@
 
 export(Blacklist_Groups)
 export(Clean_Up_Input)
-export(Hopach_and_Heatmap)
+export(DDheatmap)
 export(Is_A_Doublet)
 export(Main_Doublet_Decon)
 export(Pseudo_Marker_Finder)

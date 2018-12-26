@@ -4,12 +4,13 @@
 #' @param rawData ICGS expression or counts file (in ICGS expression file format).
 #' @param groups ICGS groups file.
 #' @param rowClusters Optional vector containing row cluster information (used by Recluster). Default is NULL.
+#' @param log_file_name used for saving run notes to log file
 #' @return processed - data.frame of genes by samples with a row of cell clusters (column_clusters-flat) and a column of gene clusters (row_clusters-flat) when available.
 #' @return groups - groups file with cell names matching the expression file.
 #' @keywords clean
 #' @export
 
-Clean_Up_Input<-function(rawData, groups, rowClusters=NULL){
+Clean_Up_Input<-function(rawData, groups, rowClusters=NULL, log_file_name){
 
   if(row.names(rawData)[1] %in% "column_clusters-flat" && (colnames(rawData)[1] %in% "row_clusters.flat" || colnames(rawData)[1] %in% "row_clusters-flat")){ #standard ICGS, contains column and row clusters
 
@@ -51,6 +52,9 @@ Clean_Up_Input<-function(rawData, groups, rowClusters=NULL){
   if(is.na(processed[2,1])==FALSE){
     processed[2:nrow(processed),1]=Renumber(processed[2:nrow(processed),1])
   }
+
+  cat(paste0(ncol(processed)-2, " samples after processing"), file=log_file_name, append=TRUE, sep="\n")
+  cat(paste0(nrow(processed)-2, " genes after processing"), file=log_file_name, append=TRUE, sep="\n")
 
   return(list(processed=processed, groups=groups))
 }

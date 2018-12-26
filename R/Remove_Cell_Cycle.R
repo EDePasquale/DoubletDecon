@@ -3,11 +3,12 @@
 #' This function looks for enrichment of cell cycle gene expression clusters and removes those genes.
 #' @param data Processed data from Clean_Up_Input.
 #' @param species Species as scientific species name, KEGG ID, three letter	species abbreviation, or NCBI ID.
+#' @param log_file_name used for saving run notes to log file
 #' @return data - data.frame with cell cycle gene cluster removed.
 #' @keywords cell cycle KEGG
 #' @export
 
-Remove_Cell_Cycle<-function(data, species){
+Remove_Cell_Cycle<-function(data, species, log_file_name){
 
   IDtype=which(apply(CCtable, 2, function(x) any(grepl(paste0("\\<", species, "\\>"), x))))
   ccclust=0
@@ -31,7 +32,8 @@ Remove_Cell_Cycle<-function(data, species){
       }
     }
   }
-  print(paste0(ccclust, " cell cycle clusters removed"))
+  cat(paste0(ccclust, " cell cycle clusters removed"), file=log_file_name, append=TRUE, sep="\n")
+  cat(paste0(ccclust, " cell cycle clusters removed"), sep="\n")
 
   return(data)
 }

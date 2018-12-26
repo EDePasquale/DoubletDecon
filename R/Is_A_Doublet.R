@@ -5,12 +5,13 @@
 #' @param newMedoids New combined medoids from Blacklist_groups.
 #' @param groups Processed groups file from Clean_Up_Input.
 #' @param synthProfiles Average profiles of synthetic doublets from Synthetic_Doublets.
+#' @param log_file_name used for saving run notes to log file
 #' @return isADoublet - data.frame with each cell as a row and whether it is called a doublet by deconvolution analysis.
 #' @return resultsreadable - data.frame with results of deconvolution analysis (cell by cluster) in percentages.
 #' @keywords doublet deconvolution decon
 #' @export
 
-Is_A_Doublet<-function(data, newMedoids, groups, synthProfiles){
+Is_A_Doublet<-function(data, newMedoids, groups, synthProfiles, log_file_name){
 
   #create data frame to store doublets table
   isADoublet=data.frame(matrix(ncol=4,nrow=(ncol(data)-1)))
@@ -29,7 +30,6 @@ Is_A_Doublet<-function(data, newMedoids, groups, synthProfiles){
     cells=row.names(subset(groups, groups[,1]==clust))
     subsetResults=resultsreadable[row.names(resultsreadable) %in% cells,]
     averagesReal[clust,]=apply(subsetResults,2,mean)
-    rownames(averagesReal)[clust]=as.character(subset(groups, groups[,1]==clust)[1,2])
   }
 
   #create a table with average profiles of cell clusters and synthetic combinations
@@ -55,6 +55,8 @@ Is_A_Doublet<-function(data, newMedoids, groups, synthProfiles){
   isADoublet[,4]=groups[,2]
 
   colnames(isADoublet)=c("Correlation","Cell_Types","isADoublet","Group_Cluster")
+
+  cat(paste0(length(which(isADoublet$isADoublet==TRUE)),"/", nrow(isADoublet),  " possible doublets removed"), file=log_file_name, append=TRUE, sep="\n")
 
   return(list(isADoublet=isADoublet, resultsreadable=resultsreadable))
 
