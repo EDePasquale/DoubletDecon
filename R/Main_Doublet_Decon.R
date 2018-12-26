@@ -200,13 +200,9 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   #Doublet Detection method 1: Is_A_Doublet
   uniqueClusters=as.character(unique(groups[,2]))
   DeconCalledFreq=as.data.frame(matrix(nrow=length(allClusters), ncol=1), row.names = uniqueClusters)
-  if(recluster!="none"){
-    DeconCalledFreq=reclusteredData$decon
-  }else{
-    for(clus in allClusters){
-      temp1=subset(doubletTable$isADoublet, Group_Cluster==uniqueClusters[clus])
-      DeconCalledFreq[clus,1]=(length(which(temp1$isADoublet==TRUE))/nrow(temp1))*100
-    }
+  for(clus in allClusters){
+    temp1=subset(doubletTable$isADoublet, Group_Cluster==uniqueClusters[clus])
+    DeconCalledFreq[clus,1]=(length(which(temp1$isADoublet==TRUE))/nrow(temp1))*100
   }
 
   #Combine to find real doublets
