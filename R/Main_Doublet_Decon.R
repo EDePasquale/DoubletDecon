@@ -17,7 +17,7 @@
 #' @param num_doubs The user defined number of doublets to make for each pair of clusters. Default is 30.
 #' @param downsample allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".
 #' @param sample_num number of cells per cluster with downsampling with "even", percent of cluster with "prop".
-#' @param only50 use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is TRUE.
+#' @param only50 use only synthetic doublets created with 50\%/50\% mix of parent cells, as opposed to the extended option of 30\%/70\% and 70\%/30\%, default is TRUE.
 #' @return data_processed = new expression file (cleaned).
 #' @return groups_processed = new groups file (cleaned).
 #' @return PMF_results = pseudo marker finder t-test results (gene by cluster).

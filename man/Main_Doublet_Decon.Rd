@@ -43,7 +43,7 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 
 \item{sample_num}{number of cells per cluster with downsampling with "even", percent of cluster with "prop".}
 
-\item{only50}{use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is TRUE.}
+\item{only50}{use only synthetic doublets created with 50\%/50\% mix of parent cells, as opposed to the extended option of 30\%/70\% and 70\%/30\%, default is TRUE.}
 }
 \value{
 data_processed = new expression file (cleaned).

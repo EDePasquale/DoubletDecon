@@ -20,7 +20,7 @@ Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs,
 
 \item{log_file_name}{used for saving run notes to log file}
 
-\item{only50}{use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is TRUE.}
+\item{only50}{use only synthetic doublets created with 50\%/50\% mix of parent cells, as opposed to the extended option of 30\%/70\% and 70\%/30\%, default is TRUE.}
 }
 \value{
 averagesAverages = average deconvolution profiles for each combination of cell types.
