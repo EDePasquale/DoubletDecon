@@ -4,16 +4,16 @@
 \alias{Recluster}
 \title{Recluster}
 \usage{
-Recluster(isADoublet, data, recluster, groups)
+Recluster(isADoublet, data, groups, log_file_name)
 }
 \arguments{
 \item{isADoublet}{isADoublet data.frame from Is_A_Doublet.}
 
 \item{data}{Processed data from Clean_Up_Input (or Remove_Cell_Cycle).}
 
-\item{recluster}{What type of reclustering requested.}
-
 \item{groups}{Processed groups file from Clean_Up_Input.}
+
+\item{log_file_name}{used for saving run notes to log file}
 }
 \value{
 newData2 - processed expression and groups file, reordered, with correct new cluster numbers.
@@ -21,7 +21,6 @@ newData2 - processed expression and groups file, reordered, with correct new clu
 decon - DeconCalledFreq table with all doublets 100 percent doublet and all non doublets at 0 percent doublet frequency.
 }
 \description{
-This function optionally reclusters doublets and non doublets seperately based on deconvolution analysis and returns a new expression file, groups file, and DeconFreq table for downstream analyses.
+This function reclusters doublets and non doublets seperately based on deconvolution analysis and returns a new expression file, groups file, and DeconFreq table for downstream analyses.
 }
-\keyword{HOPACH}
 \keyword{recluster}

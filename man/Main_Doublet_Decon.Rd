@@ -2,12 +2,13 @@
 % Please edit documentation in R/Main_Doublet_Decon.R
 \name{Main_Doublet_Decon}
 \alias{Main_Doublet_Decon}
-\title{Main DoubletDecon}
+\title{Main DoubletDecon v1.0.1}
 \usage{
 Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
   fullDataFile = NULL, removeCC = FALSE, species = "mmu", rhop = 1,
-  write = TRUE, recluster = "doublets_decon", PMF = TRUE,
-  useFull = FALSE, heatmap = TRUE)
+  write = TRUE, PMF = TRUE, useFull = FALSE, heatmap = TRUE,
+  centroids = FALSE, num_doubs = 30, downsample = "none",
+  sample_num = NULL, only50 = TRUE)
 }
 \arguments{
 \item{rawDataFile}{Name of file containing ICGS or Seurat expression data (gene by cell)}
@@ -28,13 +29,21 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 
 \item{write}{Write output files as .txt files. Default is TRUE.}
 
-\item{recluster}{Recluster deconvolution classified doublets and non-doublets seperately using hopach or deconvolution classifications.}
-
 \item{PMF}{Use step 2 (unique gene expression) in doublet determination criteria. Default is TRUE.}
 
 \item{useFull}{Use full gene list for PMF analysis. Requires fullDataFile. Default is FALSE.}
 
 \item{heatmap}{Boolean value for whether to generate heatmaps. Default is TRUE. Can be slow to datasets larger than ~3000 cells.}
+
+\item{centroids}{Use centroids as references in deconvolution instead of the default medoids.}
+
+\item{num_doubs}{The user defined number of doublets to make for each pair of clusters. Default is 30.}
+
+\item{downsample}{allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".}
+
+\item{sample_num}{number of cells per cluster with downsampling with "even", percent of cluster with "prop".}
+
+\item{only50}{use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is TRUE.}
 }
 \value{
 data_processed - new expression file (cleaned).

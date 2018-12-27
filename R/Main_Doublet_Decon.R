@@ -137,10 +137,10 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   cat("Creating synthetic doublet profiles...", sep="\n")
   if(.Platform$OS.type=="unix"){
     sink("/dev/null") #hides DeconRNASeq output
-    synthProfilesx=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs, log_file_name=log_file_name, only50)
+    synthProfilesx=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs, log_file_name=log_file_name, only50=only50)
     sink()
   }else{
-    synthProfilesx=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs, log_file_name=log_file_name, only50)
+    synthProfilesx=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs, log_file_name=log_file_name, only50=only50)
   }
   synthProfiles=synthProfilesx$averagesAverages
   doubletCellsInput2=synthProfilesx$doubletCellsInput2

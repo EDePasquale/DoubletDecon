@@ -1,4 +1,3 @@
-#' @export
 #' Pseudo MarkerFinder
 #'
 #' This function uses ANOVA to look for unique gene expression in each possible doublet cluster.
@@ -10,6 +9,7 @@
 #' @param log_file_name used for saving run notes to log file
 #' @return new_table - non-doublet clusters, as determined by the "Remove" and "Rescue" steps.
 #' @keywords Marker Finder ANOVA
+#' @export
 
 Pseudo_Marker_Finder<-function(groups, data, full_data2, downsample="none", sample_num=NULL, log_file_name){
 

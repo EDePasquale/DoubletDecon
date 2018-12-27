@@ -7,7 +7,7 @@
 #' @param log_file_name used for saving run notes to log file
 #' @return newData2 - processed expression and groups file, reordered, with correct new cluster numbers.
 #' @return decon - DeconCalledFreq table with all doublets 100 percent doublet and all non doublets at 0 percent doublet frequency.
-#' @keywords recluster HOPACH
+#' @keywords recluster
 #' @export
 
 Recluster<-function(isADoublet, data, groups, log_file_name){

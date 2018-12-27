@@ -4,23 +4,28 @@
 \alias{Pseudo_Marker_Finder}
 \title{Pseudo MarkerFinder}
 \usage{
-Pseudo_Marker_Finder(groups, data, full_data2)
+Pseudo_Marker_Finder(groups, data, full_data2, downsample = "none",
+  sample_num = NULL, log_file_name)
 }
 \arguments{
 \item{groups}{Processed groups file from Clean_Up_Input.}
 
 \item{data}{Processed data from Clean_Up_Input (or Remove_Cell_Cycle).}
 
-\item{full_data2}{Variable for passing the full gene expression matrix.}
+\item{full_data2}{cleaned full expression matrix from Clean_Up_Input.}
+
+\item{downsample}{allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".}
+
+\item{sample_num}{number of cells per cluster with downsampling with "even", percent of cluster with "prop".}
+
+\item{log_file_name}{used for saving run notes to log file}
 }
 \value{
-hallmarkTable - pseudo marker finder t statistics (gene by cluster).
-
-hallmarkTable2 - pseudo marker finder gene assignments (which cluster has the highest t-stat for each gene).
+new_table - non-doublet clusters, as determined by the "Remove" and "Rescue" steps.
 }
 \description{
-This function uses t-tests to look for unique gene expression in each cluster.
+This function uses ANOVA to look for unique gene expression in each possible doublet cluster.
 }
+\keyword{ANOVA}
 \keyword{Finder}
 \keyword{Marker}
-\keyword{ttest}
