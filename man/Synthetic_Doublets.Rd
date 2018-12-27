@@ -23,9 +23,9 @@ Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs,
 \item{only50}{use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is TRUE.}
 }
 \value{
-averagesAverages - average deconvolution profiles for each combination of cell types.
+averagesAverages = average deconvolution profiles for each combination of cell types.
 
-doubletCellsInput2 - deconvolution profiles for synthetic doublet cells (for quality control).
+doubletCellsInput2 = deconvolution profiles for synthetic doublet cells (for quality control).
 }
 \description{
 This function creates synthetic doublets by averaging gene expression profiles from each combination of clusters to generate deconvolution profiles for each type of doublet.

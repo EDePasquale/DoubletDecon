@@ -8,8 +8,8 @@
 #' @param num_doubs The user defined number of doublets to make for each pair of clusters
 #' @param log_file_name used for saving run notes to log file
 #' @param only50 use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is TRUE.
-#' @return averagesAverages - average deconvolution profiles for each combination of cell types.
-#' @return doubletCellsInput2 - deconvolution profiles for synthetic doublet cells (for quality control).
+#' @return averagesAverages = average deconvolution profiles for each combination of cell types.
+#' @return doubletCellsInput2 = deconvolution profiles for synthetic doublet cells (for quality control).
 #' @keywords synthetic
 #' @export
 

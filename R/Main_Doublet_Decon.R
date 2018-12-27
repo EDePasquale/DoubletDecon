@@ -18,7 +18,7 @@
 #' @param downsample allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".
 #' @param sample_num number of cells per cluster with downsampling with "even", percent of cluster with "prop".
 #' @param only50 use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is TRUE.
-#' @return data_processed - new expression file (cleaned).
+#' @return data_processed = new expression file (cleaned).
 #' @return groups_processed = new groups file (cleaned).
 #' @return PMF_results = pseudo marker finder t-test results (gene by cluster).
 #' @return DRS_doublet_table = each cell and whether it is called a doublet by deconvolution analysis.
