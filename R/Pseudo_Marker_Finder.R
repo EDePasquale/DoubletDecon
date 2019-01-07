@@ -129,6 +129,7 @@ Pseudo_Marker_Finder<-function(groups, data, full_data2, downsample="none", samp
   #Determine which clusters are considered to have unique expression
   colnames(hallmarkTable)=as.character(doub_clusters)
   unique_genes_by_cluster=sapply(1:ncol(hallmarkTable), function(x) length(which(!is.na(hallmarkTable[,x]))))
+  cat(paste0("Unique Genes By Cluster: ", unique_genes_by_cluster), file=log_file_name, append=TRUE, sep="\n")
   unique_rescued_clusters=colnames(hallmarkTable)[which(unique_genes_by_cluster>=4)] #min 4 genes unique
   all_rescued_clusters=c(as.character(unique_rescued_clusters), as.character(non_doub_clusters))
   new_table=as.data.frame(matrix(ncol=2, nrow=length(all_rescued_clusters)))

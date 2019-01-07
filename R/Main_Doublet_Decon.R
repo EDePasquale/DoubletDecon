@@ -202,7 +202,11 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   DeconCalledFreq=as.data.frame(matrix(nrow=length(allClusters), ncol=1), row.names = uniqueClusters)
   for(clus in allClusters){
     temp1=subset(doubletTable$isADoublet, Group_Cluster==uniqueClusters[clus])
-    DeconCalledFreq[clus,1]=(length(which(temp1$isADoublet==TRUE))/nrow(temp1))*100
+    if(nrow(temp1)==0){ #not an original cluster, only a new doublet cluster
+      DeconCalledFreq[clus,1]=100
+    }else{
+      DeconCalledFreq[clus,1]=(length(which(temp1$isADoublet==TRUE))/nrow(temp1))*100
+    }
   }
 
   #Combine to find real doublets
