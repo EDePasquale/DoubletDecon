@@ -56,6 +56,25 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   cat(paste0("centroids: ",centroids), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("num_doubs: ",num_doubs), file=log_file_name, append=TRUE, sep="\n")
 
+  #Check variables
+  if(is.character(rawDataFile)!=TRUE){print("ERROR: rawDataFile must be a character string!")}
+  if(is.character(groupsFile)!=TRUE){print("ERROR: groupsFile must be a character string!")}
+  if(is.character(filename)!=TRUE){print("ERROR: filename must be a character string!")}
+  if(is.character(location)!=TRUE){print("ERROR: location must be a character string!")}
+  if(is.character(fullDataFile)!=TRUE & is.null(fullDataFile)!=TRUE){print("ERROR: fullDataFile must be a character string or NULL!")}
+  if(is.logical(removeCC)!=TRUE){print("ERROR: removeCC must be TRUE or FALSE!")}
+  if(is.character(species)!=TRUE){print("ERROR: species must be a character string!")}
+  if(is.numeric(rhop)!=TRUE){print("ERROR: rhop must be numeric!")}
+  if(is.logical(write)!=TRUE){print("ERROR: write must be TRUE or FALSE!")}
+  if(is.logical(PMF)!=TRUE){print("ERROR: PMF must be TRUE or FALSE!")}
+  if(is.logical(useFull)!=TRUE){print("ERROR: useFull must be TRUE or FALSE!")}
+  if(is.logical(heatmap)!=TRUE){print("ERROR: heatmap must be TRUE or FALSE!")}
+  if(is.logical(centroids)!=TRUE){print("ERROR: centroids must be TRUE or FALSE!")}
+  if(is.numeric(num_doubs)!=TRUE){print("ERROR: numdoubs must be numeric!")}
+  if(is.character(downsample)!=TRUE){print("ERROR: downsample must be a character string!")}
+  if(is.numeric(sample_num)!=TRUE & is.null(sample_num)!=TRUE){print("ERROR: sample_num must be numeric or NULL!")}
+  if(is.logical(only50)!=TRUE){print("ERROR: only50 must be TRUE or FALSE!")}
+
   #Read in data
   cat("Reading data...", file=log_file_name, append=TRUE, sep="\n")
   cat("Reading data...", sep="\n")
