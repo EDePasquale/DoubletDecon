@@ -39,7 +39,6 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   require(clusterProfiler)
   require(mygene)
   require(hopach)
-  require(as.color)
 
   #Set up log file
   log_file_name=paste0(location, Sys.time(),".log")
