@@ -6,8 +6,13 @@ A cell-state aware tool for removing doublets from single-cell RNA-seq data
 
 See our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for more information on DoubletDecon.
 
-# Updates - Version 1.0.1 : December 26th, 2018 #
+# Updates - Version 1.0.2 : January 9th, 2019 #
+ * General bug fixes affecting final groups file and final expression file output.
+ * Added user option to specify minimum number of unique genes to Rescue a putative doublet cluster (previously set at 4).
+ * Speed up run time for users who do not use the Rescue step (PMF=FALSE).
+ * Remove requirement for 'as.color' function.
 
+## Version 1.0.1 : December 26th, 2018
  * Additional "Remove" step option to create synthetic doublet centroids with 30%/70% and 70%/30% parent cell contribution instead of simply 50%/50% (only50=FALSE).
  * Heatmap generation corrected for large datasets (>5000 cells).
  * "Rescue" step modification from t-tests for all clusters to ANOVA with Tukey post-hoc test in only putative doublet clusters. Minimum of 4 unique genes as hardcoded default.
@@ -40,8 +45,6 @@ DoubletDecon requires the following R packages:
  * MCL
  * clusterProfiler
  * mygene
- * hopach
- * as.color
  
 These can be installed with:
 
@@ -102,6 +105,7 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 * downsample: allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".
 * sample_num: number of cells per cluster with downsampling with "even", percent of cluster with "prop".
 * only50: use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is TRUE.
+* min_uniq: minimum number of unique genes required for a cluster to be rescued, default is 4.
 
 #### Value ####
 

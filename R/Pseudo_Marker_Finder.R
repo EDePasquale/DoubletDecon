@@ -6,12 +6,13 @@
 #' @param full_data2 cleaned full expression matrix from Clean_Up_Input.
 #' @param downsample allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".
 #' @param sample_num number of cells per cluster with downsampling with "even", percent of cluster with "prop".
+#' @param min_uniq minimum number of unique genes required for a cluster to be rescued
 #' @param log_file_name used for saving run notes to log file
 #' @return new_table - non-doublet clusters, as determined by the "Remove" and "Rescue" steps.
 #' @keywords Marker Finder ANOVA
 #' @export
 
-Pseudo_Marker_Finder<-function(groups, data, full_data2, downsample="none", sample_num=NULL, log_file_name){
+Pseudo_Marker_Finder<-function(groups, data, full_data2, downsample="none", sample_num=NULL, min_uniq=4, log_file_name=log_file_name){
 
   #Define possible doublet clusters
   doublets=cbind(unique(groups[grep("even|one|two", groups[,2]),1]),unique(groups[grep("even|one|two", groups[,2]),1]))
@@ -130,7 +131,7 @@ Pseudo_Marker_Finder<-function(groups, data, full_data2, downsample="none", samp
   colnames(hallmarkTable)=as.character(doub_clusters)
   unique_genes_by_cluster=sapply(1:ncol(hallmarkTable), function(x) length(which(!is.na(hallmarkTable[,x]))))
   cat(paste0("Unique Genes By Cluster: ", unique_genes_by_cluster), file=log_file_name, append=TRUE, sep="\n")
-  unique_rescued_clusters=colnames(hallmarkTable)[which(unique_genes_by_cluster>=4)] #min 4 genes unique
+  unique_rescued_clusters=colnames(hallmarkTable)[which(unique_genes_by_cluster>=min_uniq)] #min genes unique
   all_rescued_clusters=c(as.character(unique_rescued_clusters), as.character(non_doub_clusters))
   new_table=as.data.frame(matrix(ncol=2, nrow=length(all_rescued_clusters)))
   new_table[,2]=all_rescued_clusters

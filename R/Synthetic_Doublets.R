@@ -64,9 +64,6 @@ Synthetic_Doublets<-function(data, groups, groupsMedoids, newMedoids, num_doubs,
     colnames(doubletAverages)[doublet+((ncol(doubletAverages)/3)*2)]=paste0(cell1,"-", cell2, "-two")
   }
 
-  cat(paste0("only50: ", only50), file=log_file_name, append=TRUE, sep="\n")
-  cat(paste0("only50: ", only50), sep="\n")
-
   #50%/50% references only or 30%/70% and 70%/30% included
   if(only50==TRUE){
     mult=1

@@ -5,7 +5,7 @@
 \title{Pseudo MarkerFinder}
 \usage{
 Pseudo_Marker_Finder(groups, data, full_data2, downsample = "none",
-  sample_num = NULL, log_file_name)
+  sample_num = NULL, min_uniq = 4, log_file_name = log_file_name)
 }
 \arguments{
 \item{groups}{Processed groups file from Clean_Up_Input.}
@@ -17,6 +17,8 @@ Pseudo_Marker_Finder(groups, data, full_data2, downsample = "none",
 \item{downsample}{allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".}
 
 \item{sample_num}{number of cells per cluster with downsampling with "even", percent of cluster with "prop".}
+
+\item{min_uniq}{minimum number of unique genes required for a cluster to be rescued}
 
 \item{log_file_name}{used for saving run notes to log file}
 }

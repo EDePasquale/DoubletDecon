@@ -18,6 +18,7 @@
 #' @param downsample allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".
 #' @param sample_num number of cells per cluster with downsampling with "even", percent of cluster with "prop".
 #' @param only50 use only synthetic doublets created with 50\%/50\% mix of parent cells, as opposed to the extended option of 30\%/70\% and 70\%/30\%, default is TRUE.
+#' @param min_uniq minimum number of unique genes required for a cluster to be rescued
 #' @return data_processed = new expression file (cleaned).
 #' @return groups_processed = new groups file (cleaned).
 #' @return PMF_results = pseudo marker finder t-test results (gene by cluster).
@@ -29,7 +30,7 @@
 #' @keywords doublet decon main
 #' @export
 
-Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDataFile=NULL, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, PMF=TRUE, useFull=FALSE, heatmap=TRUE, centroids=FALSE, num_doubs=30, downsample="none", sample_num=NULL, only50=TRUE){
+Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDataFile=NULL, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, PMF=TRUE, useFull=FALSE, heatmap=TRUE, centroids=FALSE, num_doubs=30, downsample="none", sample_num=NULL, only50=TRUE, min_uniq=4){
 
   #load required packages
   require(DeconRNASeq)
@@ -38,7 +39,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   require(MCL)
   require(clusterProfiler)
   require(mygene)
-  require(hopach)
+  #require(hopach)
 
   #Set up log file
   log_file_name=paste0(location, Sys.time(),".log")
@@ -54,13 +55,17 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   cat(paste0("heatmap: ",heatmap), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("centroids: ",centroids), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("num_doubs: ",num_doubs), file=log_file_name, append=TRUE, sep="\n")
+  cat(paste0("downsample: ",downsample), file=log_file_name, append=TRUE, sep="\n")
+  cat(paste0("sample_num: ",sample_num), file=log_file_name, append=TRUE, sep="\n")
+  cat(paste0("only50: ",only50), file=log_file_name, append=TRUE, sep="\n")
+  cat(paste0("min_uniq: ",min_uniq), file=log_file_name, append=TRUE, sep="\n")
 
   #Check variables
-  if(is.character(rawDataFile)!=TRUE){print("ERROR: rawDataFile must be a character string!")}
-  if(is.character(groupsFile)!=TRUE){print("ERROR: groupsFile must be a character string!")}
+  if(is.character(rawDataFile)!=TRUE & is.data.frame(rawDataFile)!=TRUE){print("ERROR: rawDataFile must be a character string!")}
+  if(is.character(groupsFile)!=TRUE & is.data.frame(groupsFile)!=TRUE){print("ERROR: groupsFile must be a character string!")}
   if(is.character(filename)!=TRUE){print("ERROR: filename must be a character string!")}
   if(is.character(location)!=TRUE){print("ERROR: location must be a character string!")}
-  if(is.character(fullDataFile)!=TRUE & is.null(fullDataFile)!=TRUE){print("ERROR: fullDataFile must be a character string or NULL!")}
+  if(is.character(fullDataFile)!=TRUE & is.null(fullDataFile)!=TRUE & is.data.frame(fullDataFile)!=TRUE){print("ERROR: fullDataFile must be a character string or NULL!")}
   if(is.logical(removeCC)!=TRUE){print("ERROR: removeCC must be TRUE or FALSE!")}
   if(is.character(species)!=TRUE){print("ERROR: species must be a character string!")}
   if(is.numeric(rhop)!=TRUE){print("ERROR: rhop must be numeric!")}
@@ -73,6 +78,8 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   if(is.character(downsample)!=TRUE){print("ERROR: downsample must be a character string!")}
   if(is.numeric(sample_num)!=TRUE & is.null(sample_num)!=TRUE){print("ERROR: sample_num must be numeric or NULL!")}
   if(is.logical(only50)!=TRUE){print("ERROR: only50 must be TRUE or FALSE!")}
+  if(is.numeric(min_uniq)!=TRUE){print("ERROR: min_uniq must be numeric!")}
+
 
   #Read in data
   cat("Reading data...", file=log_file_name, append=TRUE, sep="\n")
@@ -193,32 +200,44 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   }
 
   #Run Pseudo Marker Finder to identify clusters with no unique gene expression
-  cat("Step 3: Rescuing cells with unique gene expression...", file=log_file_name, append=TRUE, sep="\n")
-  cat("Step 3: Rescuing cells with unique gene expression...", sep="\n")
-  if(useFull==TRUE){
-    if(class(fullDataFile)=="character"){
-      full_data=read.table(fullDataFile, sep="\t",header=T, row.names=1)
-    }else{
-      full_data=fullDataFile
-    }
-    full_data2=Clean_Up_Input(full_data, groups)$processed
-    PMFresults=Pseudo_Marker_Finder(groups, data, full_data2, downsample, sample_num, log_file_name=log_file_name)
+  if(PMF==FALSE){
+    cat("SKIPPING Step 3: Rescuing cells with unique gene expression...", file=log_file_name, append=TRUE, sep="\n")
+    cat("SKIPPING Step 3: Rescuing cells with unique gene expression...", sep="\n")
+    PMFresults=NULL
   }else{
-    PMFresults=Pseudo_Marker_Finder(groups, data, full_data2=NULL, downsample, sample_num, log_file_name=log_file_name)
+    cat("Step 3: Rescuing cells with unique gene expression...", file=log_file_name, append=TRUE, sep="\n")
+    cat("Step 3: Rescuing cells with unique gene expression...", sep="\n")
+    if(useFull==TRUE){
+      if(class(fullDataFile)=="character"){
+        full_data=read.table(fullDataFile, sep="\t",header=T, row.names=1)
+      }else{
+        full_data=fullDataFile
+      }
+      full_data2=Clean_Up_Input(full_data, groups)$processed
+      PMFresults=Pseudo_Marker_Finder(groups, data, full_data2, downsample, sample_num, min_uniq=min_uniq, log_file_name=log_file_name)
+    }else{
+      PMFresults=Pseudo_Marker_Finder(groups, data, full_data2=NULL, downsample, sample_num, min_uniq=min_uniq, log_file_name=log_file_name)
+    }
+    if(write==TRUE){
+      write.table(PMFresults, paste0(location, "new_PMF_results_", filename, ".txt"), sep="\t")
+    }
   }
-  if(write==TRUE){
-    write.table(PMFresults, paste0(location, "new_PMF_results_", filename, ".txt"), sep="\t")
-  }
+
 
   #Doublet Detection method 2: Pseudo_Marker_Finder
   allClusters=unique(groups[,1])
-  hallmarkClusters=as.numeric(unique(PMFresults[,2]))
-  newDoubletClusters=setdiff(allClusters, hallmarkClusters)
+  if(PMF==FALSE){
+    newDoubletClusters=allClusters
+  }else{
+    hallmarkClusters=as.numeric(unique(PMFresults[,2]))
+    newDoubletClusters=setdiff(allClusters, hallmarkClusters)
+  }
+
 
   #Doublet Detection method 1: Is_A_Doublet
   uniqueClusters=as.character(unique(groups[,2]))
   DeconCalledFreq=as.data.frame(matrix(nrow=length(allClusters), ncol=1), row.names = uniqueClusters)
-  for(clus in allClusters){
+  for(clus in 1:length(allClusters)){ #modified this line, was originally "clus in allClusters"
     temp1=subset(doubletTable$isADoublet, Group_Cluster==uniqueClusters[clus])
     if(nrow(temp1)==0){ #not an original cluster, only a new doublet cluster
       DeconCalledFreq[clus,1]=100
