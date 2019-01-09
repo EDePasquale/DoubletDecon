@@ -51,7 +51,7 @@ These can be installed with:
 ```
 source("https://bioconductor.org/biocLite.R")
 biocLite(c("DeconRNASeq", "clusterProfiler", "hopach", "mygene"))
-install.packages("MCL", "as.color")
+install.packages("MCL")
 ```
 
 Additionally, the use of the cell cycle removal option requires an internet connection.
@@ -82,7 +82,7 @@ Seurat_Pre_Process(expressionFile, genesFile, clustersFile)
 Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
   fullDataFile = NULL, removeCC = FALSE, species = "mmu", rhop = 1,
   write = TRUE, PMF = TRUE, useFull = FALSE, heatmap = TRUE, centroids=FALSE, num_doubs=30, 
-  downsample="none", sample_num=NULL, only50=TRUE)
+  downsample="none", sample_num=NULL, only50=TRUE, min_uniq=4)
 ```
 
 #### Arguments ####
@@ -150,5 +150,6 @@ results=Main_Doublet_Decon(rawDataFile=newFiles$newExpressionFile,
                            num_doubs=100, 
                            downsample="none",
                            sample_num=NULL,
-                           only50=TRUE)
+                           only50=TRUE,
+                           min_uniq=4)
 ```                           
