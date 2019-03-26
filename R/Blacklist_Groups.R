@@ -52,7 +52,7 @@ Blacklist_Groups<-function(data, groups, rhop, centroid_flag, log_file_name){
                       xlab = "Cell Types", #x axis title
                       ylab =  "Cell Types", #y axis title
                       trace="none",
-                      main = "Blacklist") #main title
+                      main = "Cluster Merge") #main title
   blacklist_original_order=blacklist_original_order[BLheatmap$rowInd,BLheatmap$colInd]
   blacklist=blacklist[BLheatmap$rowInd,BLheatmap$colInd]
 

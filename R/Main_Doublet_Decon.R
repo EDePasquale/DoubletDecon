@@ -14,9 +14,7 @@
 #' @param useFull Use full gene list for PMF analysis. Requires fullDataFile. Default is FALSE.
 #' @param heatmap Boolean value for whether to generate heatmaps. Default is TRUE. Can be slow to datasets larger than ~3000 cells.
 #' @param centroids Use centroids as references in deconvolution instead of the default medoids.
-#' @param num_doubs The user defined number of doublets to make for each pair of clusters. Default is 30.
-#' @param downsample allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".
-#' @param sample_num number of cells per cluster with downsampling with "even", percent of cluster with "prop".
+#' @param num_doubs The user defined number of doublets to make for each pair of clusters. Default is 100.
 #' @param only50 use only synthetic doublets created with 50\%/50\% mix of parent cells, as opposed to the extended option of 30\%/70\% and 70\%/30\%, default is TRUE.
 #' @param min_uniq minimum number of unique genes required for a cluster to be rescued
 #' @return data_processed = new expression file (cleaned).
@@ -30,19 +28,25 @@
 #' @keywords doublet decon main
 #' @export
 
-Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDataFile=NULL, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, PMF=TRUE, useFull=FALSE, heatmap=TRUE, centroids=FALSE, num_doubs=30, downsample="none", sample_num=NULL, only50=TRUE, min_uniq=4){
+Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDataFile=NULL, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, PMF=TRUE, useFull=FALSE, heatmap=TRUE, centroids=FALSE, num_doubs=100, only50=TRUE, min_uniq=4){
 
   #load required packages
-  require(DeconRNASeq)
-  require(gplots)
-  require(dplyr)
-  require(MCL)
-  require(clusterProfiler)
-  require(mygene)
-  #require(hopach)
+  cat("Loading packages...", sep="\n")
+  suppressMessages(require(DeconRNASeq))
+  suppressMessages(require(gplots))
+  suppressMessages(require(dplyr))
+  suppressMessages(require(MCL))
+  suppressMessages(require(clusterProfiler))
+  suppressMessages(require(mygene))
+  suppressMessages(require(tidyr))
+  suppressMessages(require(R.utils)) #for new PMF
+  suppressMessages(require(dplyr)) #for new PMF
+  suppressMessages(require(foreach)) #for new PMF
+  suppressMessages(require(doParallel)) #for new PMF
+  suppressMessages(require(stringr)) #for new PMF
 
   #Set up log file
-  log_file_name=paste0(location, Sys.time(),".log")
+  log_file_name=paste0(location, filename,".log")
   log_con <- file(log_file_name)
   cat(paste0("filename: ",filename), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("location: ",location), file=log_file_name, append=TRUE, sep="\n")
@@ -55,8 +59,6 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   cat(paste0("heatmap: ",heatmap), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("centroids: ",centroids), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("num_doubs: ",num_doubs), file=log_file_name, append=TRUE, sep="\n")
-  cat(paste0("downsample: ",downsample), file=log_file_name, append=TRUE, sep="\n")
-  cat(paste0("sample_num: ",sample_num), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("only50: ",only50), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("min_uniq: ",min_uniq), file=log_file_name, append=TRUE, sep="\n")
 
@@ -75,8 +77,6 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   if(is.logical(heatmap)!=TRUE){print("ERROR: heatmap must be TRUE or FALSE!")}
   if(is.logical(centroids)!=TRUE){print("ERROR: centroids must be TRUE or FALSE!")}
   if(is.numeric(num_doubs)!=TRUE){print("ERROR: numdoubs must be numeric!")}
-  if(is.character(downsample)!=TRUE){print("ERROR: downsample must be a character string!")}
-  if(is.numeric(sample_num)!=TRUE & is.null(sample_num)!=TRUE){print("ERROR: sample_num must be numeric or NULL!")}
   if(is.logical(only50)!=TRUE){print("ERROR: only50 must be TRUE or FALSE!")}
   if(is.numeric(min_uniq)!=TRUE){print("ERROR: min_uniq must be numeric!")}
 
@@ -162,10 +162,10 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   cat("Creating synthetic doublet profiles...", sep="\n")
   if(.Platform$OS.type=="unix"){
     sink("/dev/null") #hides DeconRNASeq output
-    synthProfilesx=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs, log_file_name=log_file_name, only50=only50)
+    synthProfilesx=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs, log_file_name=log_file_name, only50=only50, location=location)
     sink()
   }else{
-    synthProfilesx=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs, log_file_name=log_file_name, only50=only50)
+    synthProfilesx=Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs, log_file_name=log_file_name, only50=only50, location=location)
   }
   synthProfiles=synthProfilesx$averagesAverages
   doubletCellsInput2=synthProfilesx$doubletCellsInput2
@@ -194,10 +194,8 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   reclusteredData=Recluster(isADoublet=doubletTable$isADoublet, data, groups, log_file_name = log_file_name)
   data=reclusteredData$newData2$processed
   groups=reclusteredData$newData2$groups
-  if(write==TRUE){
-    write.table(data, paste0(location, "data_processed_reclust_", filename, ".txt"), sep="\t")
-    write.table(groups, paste0(location, "groups_processed_reclust_", filename, ".txt"), sep="\t")
-  }
+  write.table(data, paste0(location, "data_processed_reclust_", filename, ".txt"), sep="\t", col.names = NA, quote=FALSE)
+  write.table(groups, paste0(location, "groups_processed_reclust_", filename, ".txt"), sep="\t")
 
   #Run Pseudo Marker Finder to identify clusters with no unique gene expression
   if(PMF==FALSE){
@@ -208,15 +206,9 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
     cat("Step 3: Rescuing cells with unique gene expression...", file=log_file_name, append=TRUE, sep="\n")
     cat("Step 3: Rescuing cells with unique gene expression...", sep="\n")
     if(useFull==TRUE){
-      if(class(fullDataFile)=="character"){
-        full_data=read.table(fullDataFile, sep="\t",header=T, row.names=1)
-      }else{
-        full_data=fullDataFile
-      }
-      full_data2=Clean_Up_Input(full_data, groups)$processed
-      PMFresults=Pseudo_Marker_Finder(groups, data, full_data2, downsample, sample_num, min_uniq=min_uniq, log_file_name=log_file_name)
+      PMFresults=Pseudo_Marker_Finder(groups, redu_data2=paste0(location, "data_processed_reclust_", filename, ".txt"), full_data2=fullDataFile, min_uniq=min_uniq, log_file_name=log_file_name)
     }else{
-      PMFresults=Pseudo_Marker_Finder(groups, data, full_data2=NULL, downsample, sample_num, min_uniq=min_uniq, log_file_name=log_file_name)
+      PMFresults=Pseudo_Marker_Finder(groups, redu_data2=paste0(location, "data_processed_reclust_", filename, ".txt"), full_data2=NULL, min_uniq=min_uniq, log_file_name=log_file_name)
     }
     if(write==TRUE){
       write.table(PMFresults, paste0(location, "new_PMF_results_", filename, ".txt"), sep="\t")
@@ -248,19 +240,18 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
 
   #Combine to find real doublets
   if(PMF==FALSE){
-    finalDoubletClusters=which(DeconCalledFreq>50)
+    finalDoublets=row.names(doubletTable$isADoublet)[which(doubletTable$isADoublet$isADoublet==TRUE)] #this gives you the names of cells called as doublets by deconvolution
   }else{
-    finalDoubletClusters=intersect(which(DeconCalledFreq>50), newDoubletClusters)
+    finalDoublets=intersect(row.names(doubletTable$isADoublet)[which(doubletTable$isADoublet$isADoublet==TRUE)],row.names(subset(groups, groups[,1] %in% newDoubletClusters)))
   }
 
   #Results
-  finalDoubletCellCall=subset(groups, groups[,1] %in% finalDoubletClusters)
-  finalNotDoubletCellCall=subset(groups, !(groups[,1] %in% finalDoubletClusters))
+  finalDoubletCellCall=groups[row.names(groups) %in% finalDoublets,]
+  finalNotDoubletCellCall=groups[!(row.names(groups) %in% finalDoublets),]
   if(write==TRUE){
     write.table(finalDoubletCellCall, paste0(location, "Final_doublets_groups_", filename, ".txt"), sep="\t")
     write.table(finalNotDoubletCellCall, paste0(location, "Final_nondoublets_groups_", filename, ".txt"), sep="\t")
   }
-
 
   #Subset expression matrix for doublets and save
   doublets_matrix=cbind(og_processed_data[,1],og_processed_data[,which(colnames(og_processed_data) %in% row.names(finalDoubletCellCall))])
@@ -326,6 +317,10 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
                                main = paste0("Non-Doublets: ", filename))) #main title
   }
 
+  #last message
+  cat("Finished!", file=log_file_name, append=TRUE, sep="\n")
+  cat("Finished!", sep="\n")
+  
   #close the log file connection
   close(log_con)
 

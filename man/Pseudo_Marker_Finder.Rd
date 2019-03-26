@@ -4,19 +4,15 @@
 \alias{Pseudo_Marker_Finder}
 \title{Pseudo MarkerFinder}
 \usage{
-Pseudo_Marker_Finder(groups, data, full_data2, downsample = "none",
-  sample_num = NULL, min_uniq = 4, log_file_name = log_file_name)
+Pseudo_Marker_Finder(groups, redu_data2, full_data2, min_uniq = 4,
+  log_file_name = log_file_name)
 }
 \arguments{
 \item{groups}{Processed groups file from Clean_Up_Input.}
 
-\item{data}{Processed data from Clean_Up_Input (or Remove_Cell_Cycle).}
+\item{redu_data2}{Processed data from Clean_Up_Input (or Remove_Cell_Cycle) path, automatically written.}
 
 \item{full_data2}{cleaned full expression matrix from Clean_Up_Input.}
-
-\item{downsample}{allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".}
-
-\item{sample_num}{number of cells per cluster with downsampling with "even", percent of cluster with "prop".}
 
 \item{min_uniq}{minimum number of unique genes required for a cluster to be rescued}
 

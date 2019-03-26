@@ -2,140 +2,142 @@
 #'
 #' This function uses ANOVA to look for unique gene expression in each possible doublet cluster.
 #' @param groups Processed groups file from Clean_Up_Input.
-#' @param data Processed data from Clean_Up_Input (or Remove_Cell_Cycle).
+#' @param redu_data2 Processed data from Clean_Up_Input (or Remove_Cell_Cycle) path, automatically written.
 #' @param full_data2 cleaned full expression matrix from Clean_Up_Input.
-#' @param downsample allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".
-#' @param sample_num number of cells per cluster with downsampling with "even", percent of cluster with "prop".
 #' @param min_uniq minimum number of unique genes required for a cluster to be rescued
 #' @param log_file_name used for saving run notes to log file
 #' @return new_table - non-doublet clusters, as determined by the "Remove" and "Rescue" steps.
 #' @keywords Marker Finder ANOVA
 #' @export
 
-Pseudo_Marker_Finder<-function(groups, data, full_data2, downsample="none", sample_num=NULL, min_uniq=4, log_file_name=log_file_name){
-
-  #Define possible doublet clusters
-  doublets=cbind(unique(groups[grep("even|one|two", groups[,2]),1]),unique(groups[grep("even|one|two", groups[,2]),1]))
-
-  #Deal with full data
+Pseudo_Marker_Finder<-function(groups, redu_data2, full_data2, min_uniq=4, log_file_name=log_file_name){
+  
+  #Define the expression file
   if(!is.null(full_data2)){
-    data=full_data2
-  }
-
-  #Reduce gene list with full data file based on FC cutoffs and minimum expression values
-  if(!is.null(full_data2)){
-    matrix_data=apply(as.matrix(data[2:nrow(data), 2:ncol(data)]),2,as.numeric)
-    keep.exprs1 <- rowSums(matrix_data)>0 #minimum expression values by gene, currently needs to be expressed at all in any cell
-    f=as.factor(as.character(data[1,2:ncol(data)]))
-    i <- split(1:ncol(matrix_data), f)
-    x <- sapply(i, function(i){ #this function gives mean values for each gene per cluster
-      if(!is.null(nrow(matrix_data[,i]))){
-        rowMeans(matrix_data[,i])
-      }else{
-        as.numeric(matrix_data[,i])
-      }
-    })
-    x=log2(x+1)
-    j <- combn(levels(f), 2)
-    ret<-x[,j[1,]]-x[,j[2,]] #vectorized log fold change operation
-    colnames(ret)=paste(j[1,], j[2,], sep = '-')
-    max_log_fc=apply(abs(ret),1,max)
-    keep.exprs2 <- max_log_fc>=log2(1.5)
-    data=data[c(1, (which(keep.exprs1==TRUE & keep.exprs2==TRUE)+1)),] #reduce to genes that pass both filters
-  }
-
-  #Deal with downsampling
-  new_data=matrix(nrow=nrow(data), ncol=1)
-  row.names(new_data)=row.names(data)
-  new_data[,1]=data[,1]
-  if(downsample=="even"){
-    for(i in 1:length(unique(groups[,2]))){
-      index_cells=which(data[1,]==i)
-      if(length(index_cells)==1){
-        cells=as.data.frame(data[,index_cells], stringsAsFactors=FALSE)
-      }else{
-        cells=data[,index_cells]
-      }
-      colnames(cells)=colnames(data)[index_cells]
-      if(ncol(cells)>sample_num){
-        new_cells=sample(cells, sample_num)
-      }else{
-        new_cells=cells
-      }
-      new_data=cbind(new_data,new_cells)
-    }
-  }else if(downsample=="prop"){
-    for(i in 1:length(unique(groups[,2]))){
-      index_cells=which(data[1,]==i)
-      if(length(index_cells)==1){
-        cells=as.data.frame(data[,index_cells], stringsAsFactors=FALSE)
-      }else{
-        cells=data[,index_cells]
-      }
-      colnames(cells)=colnames(data)[index_cells]
-      new_cells=sample(cells, ceiling(ncol(cells)*sample_num))
-      new_data=cbind(new_data,new_cells)
-    }
+    rawFilePath = full_data2
   }else{
-    new_data=data
+    rawFilePath = redu_data2
   }
-
+  
+  #Define possible doublet clusters
+  doublet_pre=cbind(unique(groups[grep("even|one|two", groups[,2]),1]),unique(groups[grep("even|one|two", groups[,2]),1]))
+  
   #Non-doublet clusters vs doublet clusters
-  doub_clusters=as.numeric(unique(doublets[,1]))
-  non_doub_clusters=as.numeric(unique(groups[which(!(as.numeric(groups[,1]) %in% doub_clusters)),1]))
-
-  #Create table to store p-values
-  hallmarkTable=as.data.frame(matrix(ncol=length(doub_clusters), nrow=nrow(new_data)-1), row.names = row.names(new_data)[2:nrow(new_data)])
-
-  #ANOVA testing
-  helper_PMF_a <-function(ind, doub_clust_test, temp_data){
-    gene_data=as.data.frame(cbind(as.numeric(temp_data[ind,]),as.numeric(temp_data[1,])))
-    gene_data[,2]<-factor(gene_data[,2])
-    colnames(gene_data)=c("Sabor", "Tipo")
-    a1=aov(Sabor ~ Tipo, gene_data)
-    if((!is.na(summary(a1)[[1]][["Pr(>F)"]][1])) & summary(a1)[[1]][["Pr(>F)"]][1]<0.05){ #if anova is significant, move to next step
-      posthoc <- TukeyHSD(x=a1, conf.level=0.95) #do post hoc test
-      doub_posthoc <- posthoc[["Tipo"]][,"p adj"][grep(doub_clust_test, names(posthoc[["Tipo"]][,"p adj"]))] #pull out all post hoc results containing the doublet cluster
-      if(length(which(doub_posthoc<0.05))==(length(unique(gene_data$Tipo))-1)){ #if the doublet cluster is significantly different from all other clusters, move to next step
-        mean_results=sort(tapply(gene_data$Sabor, gene_data$Tipo, mean), decreasing=TRUE) #get the mean for all clusters, and sort in decreasing order
-        if(names(mean_results[1])==doub_clust_test){ #if the doublet cluster has the highest expression then call it as a non doublet cluster
-          return(min(doub_posthoc))
-        }
-      }
-    }
-    return(NA)
-  }
-
-  #Helper function for the ANOVA testing
-  helper_PMF_a_temp <- function(ind, doub_clust_test){
-    gene_data=as.data.frame(cbind(as.numeric(temp_data[ind,]),as.numeric(temp_data[1,])))
-    gene_data[,2]<-factor(gene_data[,2])
-    colnames(gene_data)=c("Sabor", "Tipo")
-    return(NA)
-  }
-
-
-  #Check for unique expression in each of the possible doublet clusters
-  rows=2:nrow(new_data)
-  new_data2=apply(as.matrix(new_data),2,as.numeric)
-  clust <- makeCluster(detectCores()) #variable number of cores depending on the system
-  for(newCluster in 1:length(doub_clusters)){
-    print(paste0("Processing cluster ", newCluster, "/", length(doub_clusters), "..."))
-    doub_clust_test=doub_clusters[newCluster] #which doublet cluster are we testing for unique gene expression
-    temp_data=new_data2[,which(new_data2[1,] %in% non_doub_clusters | new_data2[1,]==doub_clust_test)] #pull all cells that are part of that doublet cluster or any non-doublet cluster
-    hallmarkTable[,newCluster]=parSapply(clust, rows, helper_PMF_a, doub_clust_test, temp_data)
-  }
-  stopCluster(clust)
-
-  #Determine which clusters are considered to have unique expression
-  colnames(hallmarkTable)=as.character(doub_clusters)
-  unique_genes_by_cluster=sapply(1:ncol(hallmarkTable), function(x) length(which(!is.na(hallmarkTable[,x]))))
-  cat(paste0("Unique Genes By Cluster: ", unique_genes_by_cluster), file=log_file_name, append=TRUE, sep="\n")
-  unique_rescued_clusters=colnames(hallmarkTable)[which(unique_genes_by_cluster>=min_uniq)] #min genes unique
-  all_rescued_clusters=c(as.character(unique_rescued_clusters), as.character(non_doub_clusters))
+  doublet=as.numeric(unique(doublet_pre[,1]))
+  nonDoublet=as.numeric(unique(groups[which(!(as.numeric(groups[,1]) %in% doublet)),1]))
+  
+  #How many genes per time are read in (length block of input file)
+  #The more cells (columns), the larger the memory for same number of genes (rows)
+  genesPerTime = 1000
+  
+  #Get the cell names (first row of file assumed)
+  cellNames = str_replace(scan(rawFilePath, character(), nlines = 1, sep = "\t", quiet=TRUE)[-1], "-", "\\.")
+  reclust_groups=groups
+  reclust_groups$cells = row.names(reclust_groups)
+  colnames(reclust_groups) = c("clusterNr", "clusterName", "cellName")
+  
+  #Make sure only to evaluate cells output from AltAnalyze
+  processedCells = cellNames %in% reclust_groups$cellName
+  reclust_groups = reclust_groups[match(cellNames[processedCells], reclust_groups$cellName),]
+  
+  #Read the total lines (e.g. genes) in the file (needed for parallel)
+  nLines = countLines(rawFilePath)[1]
+  
+  #Run in parallel the code for each chunk of data read from the file
+  registerDoParallel(makeCluster(detectCores()))
+  
+  anovaResult = foreach(linePos = 0:floor(nLines / genesPerTime), .packages = c("dplyr"),
+                        .combine = "rbind")  %dopar%  {
+                          
+                          #Read in a block from the input file (different blocks analysed in parallel) and pre-process
+                          startPos = 1 + linePos*genesPerTime
+                          genesPerTime = ifelse(linePos == floor(nLines / genesPerTime), nLines - startPos, genesPerTime)
+                          
+                          #Read in the chunk of data as a bix matrix
+                          myChunk = scan(rawFilePath, character(), skip = startPos, 
+                                         nlines = genesPerTime, sep = "\t")
+                          nCells = length(myChunk) / genesPerTime
+                          myChunk = t(sapply(0:(genesPerTime-1), function(x){
+                            myChunk[(1 + nCells*x):(nCells*x + nCells)]
+                          }))
+                          
+                          #Get the genes we're testing (first value on each line)
+                          chunkGenes = unlist(myChunk[,1])
+                          
+                          #Convert the rest into numeric dataframe and add the groups (from altAnalyze)
+                          myChunk = t(data.matrix(myChunk[,c(FALSE, processedCells)]))
+                          myChunk = as.matrix(myChunk)
+                          class(myChunk) <- "numeric"
+                          myChunk = as.data.frame(myChunk)
+                          colnames(myChunk) = paste("gene", 1:genesPerTime, sep = "")
+                          myChunk$group = reclust_groups$clusterNr
+                          
+                          #ANOVA in bulk (main optimisation)
+                          # By precalculating sums and sum of squares for each group in each gene for the whole chunk at once, 
+                          # we save a lot of time downstream
+                          # https://www.youtube.com/watch?v=ynx04Qgqdrc
+                          nGroups = myChunk  %>% count(group) %>% group_by(group)
+                          nCells = nrow(reclust_groups)
+                          allSums =  myChunk %>% group_by(group) %>% arrange(group) %>% summarise_all(funs(sum))
+                          allSums$theCount = nGroups$n
+                          nGroups = nrow(nGroups)
+                          myChunk[,-ncol(myChunk)] = myChunk[,-ncol(myChunk)] ^ 2
+                          allSquares = myChunk %>% group_by(group) %>% summarise_all(funs(sum))
+                          
+                          #Needed to perform an optimised Tukey test on every doublets vs. all non-doublet
+                          invertCount = 1 / allSums$theCount
+                          q = qtukey(.95, nGroups, df = (nCells - nGroups))
+                          
+                          # This is the fast ANOVA algorithm for each gene based on pre-calculated sum and sum of squares
+                          do.call(rbind, lapply(1:genesPerTime, function(x){
+                            
+                            Cx = sum(allSums[,x+1])^2 / nCells
+                            SSt = sum(allSquares[,x+1]) - Cx
+                            SSa = sum(unlist(allSums[,x+1]) ^ 2 / allSums$theCount) - Cx
+                            SSw = SSt - SSa
+                            MMSa = SSa / (nGroups - 1)
+                            MSSw = SSw / (nCells - nGroups)
+                            
+                            Fratio = MMSa / MSSw
+                            
+                            #If the F ratio is significant, we can reject null hypothesis and gene has group with significant difference
+                            if(is.na(Fratio) | qf(.95, df1=(nGroups - 1), df2=(nCells - nGroups)) >= Fratio){
+                              data.frame(gene = chunkGenes[x], doublet = -1, stringsAsFactors = F) #ANOVA Not significant (code -1)
+                            } else {
+                              
+                              #Perform Tukey and mean comparisons
+                              myMeans = unlist(allSums[,x+1]) / allSums$theCount
+                              signifDoublets = doublet[sapply(doublet, function(myDoublet){
+                                #Check Tukey tests
+                                all(abs(myMeans[myDoublet] - myMeans[nonDoublet]) >=
+                                      q * sqrt(MSSw / 2 * (invertCount[myDoublet] + invertCount[nonDoublet]))) &&
+                                  #doublet mean has to be larger than all non-doublets
+                                  all(myMeans[myDoublet] >= myMeans[nonDoublet]) 
+                              })]
+                              
+                              if(length(signifDoublets) == 0){
+                                #Not all Tukey tests are significant or doublet mean is not higher than all (code 0)
+                                data.frame(gene = chunkGenes[x], doublet = 0, stringsAsFactors = F) 
+                              } else {
+                                #All are for these doublets
+                                data.frame(gene = chunkGenes[x], doublet = signifDoublets, stringsAsFactors = F) 
+                              }
+                              
+                            }
+                          }))
+                          
+                        }
+  stopImplicitCluster()
+  
+  #Table the anova results
+  anovaResultRedu=anovaResult[anovaResult[,2] %in% doublet,]
+  summedResults=table(anovaResultRedu[,2])
+  cat(paste0("Unique Genes By Cluster: ", summedResults), file=log_file_name, append=TRUE, sep="\n")
+  unique_rescued_clusters=names(summedResults[summedResults>=min_uniq]) #min genes unique
+  all_rescued_clusters=c(as.character(unique_rescued_clusters), as.character(nonDoublet))
   new_table=as.data.frame(matrix(ncol=2, nrow=length(all_rescued_clusters)))
   new_table[,2]=all_rescued_clusters
-
+ 
   return(new_table)
-
+  
 }

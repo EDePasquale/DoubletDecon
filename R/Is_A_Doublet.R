@@ -37,24 +37,40 @@ Is_A_Doublet<-function(data, newMedoids, groups, synthProfiles, log_file_name){
 
   #this section determines the profile with the highest correlation to the given cell and determines if it is one of the doublet profiles
   for(cell in 1:nrow(isADoublet)){
-    correlations=apply(allProfiles, 1, cor, resultsreadable[cell,])
-    sortCorrelations=sort(correlations, decreasing = T)[1:2]
-    maxCorrelation1=which(correlations==sortCorrelations[1])
-    maxCorrelation2=which(correlations==sortCorrelations[2])
-    chosenCorrelation=maxCorrelation1
-    isADoublet[cell,1]=correlations[chosenCorrelation]
-    correlatedCluster=row.names(allProfiles)[chosenCorrelation]
-    isADoublet[cell,2]=correlatedCluster
-    if(chosenCorrelation>length(unique(groups[,2]))){
-      isADoublet[cell,3]=TRUE
+    if(ncol(resultsreadable)==2){ #If there are only 2 groups, correlation won't work, so I use minimum euclidean distance instead
+      a=rbind(allProfiles, resultsreadable[cell,])
+      b=as.matrix(dist(a))
+      c=b[nrow(b), 1:(ncol(b)-1)]
+      chosenCorrelation=c[c %in% min(c)]
+      isADoublet[cell,1]=100-chosenCorrelation #100-euclidean distance
+      isADoublet[cell,2]=names(chosenCorrelation)
+      if(names(chosenCorrelation) %in% unique(groups[,2])){ #it is an original cluster
+        isADoublet[cell,3]=FALSE
+      }else{
+        isADoublet[cell,3]=TRUE
+      }
     }else{
-      isADoublet[cell,3]=FALSE
+      #correlations=apply(allProfiles, 1, cor, resultsreadable[cell,])
+      correlations=apply(allProfiles, 1, cor, resultsreadable[cell,])
+      sortCorrelations=sort(correlations, decreasing = T)[1:2]
+      maxCorrelation1=which(correlations==sortCorrelations[1])
+      maxCorrelation2=which(correlations==sortCorrelations[2])
+      chosenCorrelation=maxCorrelation1
+      isADoublet[cell,1]=correlations[chosenCorrelation]
+      correlatedCluster=row.names(allProfiles)[chosenCorrelation]
+      isADoublet[cell,2]=correlatedCluster
+      if(chosenCorrelation>length(unique(groups[,2]))){
+        isADoublet[cell,3]=TRUE
+      }else{
+        isADoublet[cell,3]=FALSE
+      }
     }
+
   }
 
   isADoublet[,4]=groups[,2]
 
-  colnames(isADoublet)=c("Correlation","Cell_Types","isADoublet","Group_Cluster")
+  colnames(isADoublet)=c("Distance","Cell_Types","isADoublet","Group_Cluster")
 
   cat(paste0(length(which(isADoublet$isADoublet==TRUE)),"/", nrow(isADoublet),  " possible doublets removed"), file=log_file_name, append=TRUE, sep="\n")
 

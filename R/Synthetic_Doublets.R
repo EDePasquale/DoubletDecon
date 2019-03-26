@@ -13,7 +13,7 @@
 #' @keywords synthetic
 #' @export
 
-Synthetic_Doublets<-function(data, groups, groupsMedoids, newMedoids, num_doubs, log_file_name, only50){
+Synthetic_Doublets<-function(data, groups, groupsMedoids, newMedoids, num_doubs, log_file_name, only50, location){
 
   #Override the original groups for making synthetics with groups based on the blacklisted clusters
   groups=groupsMedoids

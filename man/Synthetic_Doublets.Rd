@@ -5,7 +5,7 @@
 \title{Synthetic Doublets}
 \usage{
 Synthetic_Doublets(data, groups, groupsMedoids, newMedoids, num_doubs,
-  log_file_name, only50)
+  log_file_name, only50, location)
 }
 \arguments{
 \item{data}{Processed data from Clean_Up_Input (or Remove_Cell_Cycle).}

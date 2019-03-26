@@ -6,6 +6,18 @@ A cell-state aware tool for removing doublets from single-cell RNA-seq data
 
 See our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for more information on DoubletDecon.
 
+# Updates - Version 1.1.0 : March 26th, 2019 #
+ * NEW! DoubletDecon UI available in the GitHub repository (requires R3.5.0 or later and RStudio with 'shiny' package installed)
+ * NEW! Improved Rescue step, Pseudo_Marker_Finder, now uses parallel processing and data chunking to improve speed and memory efficency. Results remain the same with the exception of no longer saving p-values (future release)
+ * Remove downsample and sample_num
+ * Upped num_doubs default value to 100 (from 30)
+ * Require 'tidyr', 'R.utils', 'forrach', 'doParallel', 'stringr'. No longer require 'hopach'
+ * Changed log_name_file to the value for filename, for compatibility with Windows operating systems
+ * Automatically write processed data and groups files from Clean_Up_Data (even if write=FALSE) for use with new Rescue step (Pseudo_Marker_Finder)
+ * Finalize switch to more granular doublet calls in the case of no Rescue step
+ * Change name of cluster merging plot to "Cluster Merge" (from "Blacklist")
+ * Fixed bug in Remove step when number of clusters equals 2 (Euclidean distance is used in the place of Pearson correlation)
+
 # Updates - Version 1.0.2 : January 9th, 2019 #
  * General bug fixes affecting final groups file and final expression file output.
  * Added user option to specify minimum number of unique genes to Rescue a putative doublet cluster (previously set at 4).
@@ -45,12 +57,17 @@ DoubletDecon requires the following R packages:
  * MCL
  * clusterProfiler
  * mygene
+ * tidyr
+ * R.utils
+ * foreach
+ * doParallel
+ * stringr
  
 These can be installed with:
 
 ```
 source("https://bioconductor.org/biocLite.R")
-biocLite(c("DeconRNASeq", "clusterProfiler", "hopach", "mygene"))
+biocLite(c("DeconRNASeq", "clusterProfiler", "hopach", "mygene", "tidyr", "R.utils", "foreach", "doParallel", "stringr"))
 install.packages("MCL")
 ```
 
@@ -81,8 +98,8 @@ Seurat_Pre_Process(expressionFile, genesFile, clustersFile)
 ```javascript
 Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
   fullDataFile = NULL, removeCC = FALSE, species = "mmu", rhop = 1,
-  write = TRUE, PMF = TRUE, useFull = FALSE, heatmap = TRUE, centroids=FALSE, num_doubs=30, 
-  downsample="none", sample_num=NULL, only50=TRUE, min_uniq=4)
+  write = TRUE, PMF = TRUE, useFull = FALSE, heatmap = TRUE, centroids=FALSE, num_doubs=100, 
+  only50=TRUE, min_uniq=4)
 ```
 
 #### Arguments ####
@@ -101,9 +118,7 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 * useFull: Use full gene list for PMF analysis. Requires fullDataFile. Default is FALSE.
 * heatmap: Boolean value for whether to generate heatmaps. Default is TRUE. Can be slow to datasets larger than ~3000 cells.
 * centroids: Use centroids as references in deconvolution instead of the default medoids.
-* num_doubs: The user defined number of doublets to make for each pair of clusters. Default is 30.
-* downsample: allows for downsampling of cells when using full expression matrix (use with large datasets), default is "none".
-* sample_num: number of cells per cluster with downsampling with "even", percent of cluster with "prop".
+* num_doubs: The user defined number of doublets to make for each pair of clusters. Default is 100.
 * only50: use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is TRUE.
 * min_uniq: minimum number of unique genes required for a cluster to be rescued, default is 4.
 
@@ -148,8 +163,6 @@ results=Main_Doublet_Decon(rawDataFile=newFiles$newExpressionFile,
                            heatmap=FALSE,
                            centroids=TRUE,
                            num_doubs=100, 
-                           downsample="none",
-                           sample_num=NULL,
                            only50=TRUE,
                            min_uniq=4)
 ```                           
