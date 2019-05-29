@@ -7,7 +7,7 @@
 Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
   fullDataFile = NULL, removeCC = FALSE, species = "mmu", rhop = 1,
   write = TRUE, PMF = TRUE, useFull = FALSE, heatmap = TRUE,
-  centroids = FALSE, num_doubs = 100, only50 = TRUE, min_uniq = 4)
+  centroids = FALSE, num_doubs = 100, only50 = FALSE, min_uniq = 4)
 }
 \arguments{
 \item{rawDataFile}{Name of file containing ICGS or Seurat expression data (gene by cell)}
@@ -38,7 +38,7 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 
 \item{num_doubs}{The user defined number of doublets to make for each pair of clusters. Default is 100.}
 
-\item{only50}{use only synthetic doublets created with 50\%/50\% mix of parent cells, as opposed to the extended option of 30\%/70\% and 70\%/30\%, default is TRUE.}
+\item{only50}{use only synthetic doublets created with 50\%/50\% mix of parent cells, as opposed to the extended option of 30\%/70\% and 70\%/30\%, default is FALSE.}
 
 \item{min_uniq}{minimum number of unique genes required for a cluster to be rescued}
 }

@@ -6,6 +6,9 @@ A cell-state aware tool for removing doublets from single-cell RNA-seq data
 
 See our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for more information on DoubletDecon.
 
+# Updates - Version 1.1.1 : May 29th, 2019 #
+ * Change default for only50 to FALSE (from TRUE) to reflect best practices in running DoubletDecon
+
 # Updates - Version 1.1.0 : March 26th, 2019 #
  * NEW! DoubletDecon UI available in the GitHub repository (requires R3.5.0 or later and RStudio with 'shiny' package installed)
  * NEW! Improved Rescue step, Pseudo_Marker_Finder, now uses parallel processing and data chunking to improve speed and memory efficency. Results remain the same with the exception of no longer saving p-values (future release)
@@ -99,7 +102,7 @@ Seurat_Pre_Process(expressionFile, genesFile, clustersFile)
 Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
   fullDataFile = NULL, removeCC = FALSE, species = "mmu", rhop = 1,
   write = TRUE, PMF = TRUE, useFull = FALSE, heatmap = TRUE, centroids=FALSE, num_doubs=100, 
-  only50=TRUE, min_uniq=4)
+  only50=FALSE, min_uniq=4)
 ```
 
 #### Arguments ####
@@ -119,7 +122,7 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 * heatmap: Boolean value for whether to generate heatmaps. Default is TRUE. Can be slow to datasets larger than ~3000 cells.
 * centroids: Use centroids as references in deconvolution instead of the default medoids.
 * num_doubs: The user defined number of doublets to make for each pair of clusters. Default is 100.
-* only50: use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is TRUE.
+* only50: use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is FALSE.
 * min_uniq: minimum number of unique genes required for a cluster to be rescued, default is 4.
 
 #### Value ####
@@ -163,6 +166,6 @@ results=Main_Doublet_Decon(rawDataFile=newFiles$newExpressionFile,
                            heatmap=FALSE,
                            centroids=TRUE,
                            num_doubs=100, 
-                           only50=TRUE,
+                           only50=FALSE,
                            min_uniq=4)
 ```                           
