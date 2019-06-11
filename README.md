@@ -151,10 +151,14 @@ genesFile=paste0(location, "Top50Genes.txt")
 clustersFile=paste0(location, "Cluster.txt")
 
 newFiles=Seurat_Pre_Process(expressionFile, genesFile, clustersFile)
+filename="PBMC_example"
+write.table(newFiles$newExpressionFile, paste0(location, filename, "_expression"), sep="\t")
+write.table(newFiles$newFullExpressionFile, paste0(location, filename, "_fullExpression"), sep="\t")
+write.table(newFiles$newGroupsFile, paste0(location, filename , "_groups"), sep="\t", col.names = F)
 
 results=Main_Doublet_Decon(rawDataFile=newFiles$newExpressionFile, 
                            groupsFile=newFiles$newGroupsFile, 
-                           filename="PBMC_example", 
+                           filename=filename, 
                            location=location,
                            fullDataFile=NULL, 
                            removeCC=FALSE, 
