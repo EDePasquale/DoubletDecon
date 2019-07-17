@@ -44,7 +44,7 @@ Seurat_Pre_Process <- function(expressionFile, genesFile, clustersFile){
   #Add columnn_clusters-flat
   allgenes=rbind(clusters2[,2], allgenes)
   expression=rbind(clusters2[,2], expression)
-  row.names(genes2)[1]="column_clusters-flat"
+  row.names(allgenes)[1]="column_clusters-flat"
   row.names(expression)[1]="column_clusters-flat"
 
   #Add row_clusters-flat
