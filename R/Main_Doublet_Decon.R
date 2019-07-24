@@ -64,7 +64,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
 
   #Check variables
   if(is.character(rawDataFile)!=TRUE & is.data.frame(rawDataFile)!=TRUE){print("ERROR: rawDataFile must be a character string!")}
-  if(is.character(groupsFile)!=TRUE & is.data.frame(groupsFile)!=TRUE){print("ERROR: groupsFile must be a character string!")}
+  if(is.character(groupsFile)!=TRUE & is.data.frame(groupsFile)!=TRUE & is.matrix(groupsFile)!=TRUE){print("ERROR: groupsFile must be a character string!")}
   if(is.character(filename)!=TRUE){print("ERROR: filename must be a character string!")}
   if(is.character(location)!=TRUE){print("ERROR: location must be a character string!")}
   if(is.character(fullDataFile)!=TRUE & is.null(fullDataFile)!=TRUE & is.data.frame(fullDataFile)!=TRUE){print("ERROR: fullDataFile must be a character string or NULL!")}
@@ -206,9 +206,9 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
     cat("Step 3: Rescuing cells with unique gene expression...", file=log_file_name, append=TRUE, sep="\n")
     cat("Step 3: Rescuing cells with unique gene expression...", sep="\n")
     if(useFull==TRUE){
-      PMFresults=Pseudo_Marker_Finder(groups, redu_data2=paste0(location, "data_processed_reclust_", filename, ".txt"), full_data2=fullDataFile, min_uniq=min_uniq, log_file_name=log_file_name)
+      PMFresults=Pseudo_Marker_Finder(as.data.frame(groups), redu_data2=paste0(location, "data_processed_reclust_", filename, ".txt"), full_data2=fullDataFile, min_uniq=min_uniq, log_file_name=log_file_name)
     }else{
-      PMFresults=Pseudo_Marker_Finder(groups, redu_data2=paste0(location, "data_processed_reclust_", filename, ".txt"), full_data2=NULL, min_uniq=min_uniq, log_file_name=log_file_name)
+      PMFresults=Pseudo_Marker_Finder(as.data.frame(groups), redu_data2=paste0(location, "data_processed_reclust_", filename, ".txt"), full_data2=NULL, min_uniq=min_uniq, log_file_name=log_file_name)
     }
     if(write==TRUE){
       write.table(PMFresults, paste0(location, "new_PMF_results_", filename, ".txt"), sep="\t")
