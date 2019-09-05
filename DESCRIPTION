@@ -1,6 +1,6 @@
 Package: DoubletDecon
 Title: A Package to Identify Doublets and Doublet Clusters Based on Deconvolution Analysis and Unique Gene Expression
-Version: 1.0.2
+Version: 1.1.2
 Authors@R: person("Erica", "DePasquale", email = "careyea@mail.uc.edu", role = c("aut", "cre"))
 Description: This package is designed to identify doublets in single-cell RNA-seq data sets. It achieves this in a two-fold manner: 1) Identifying putative doublets by comparing deconvolution-based profiles of each cell to those of average synthetic doublets, which are created based on specified initial groups clusters. 2) Identifying doublet clusters by combining frequency of called doublets within a cluster (from step 1) and lack of unique gene expression compared to other clusters. Together, these results can identify individual doublets and doublet clusters for removal before continuing data analysis.
 Depends: R (>= 3.4.2)

@@ -1,10 +1,14 @@
 # DoubletDecon #
 
-A cell-state aware tool for removing doublets from single-cell RNA-seq data
+Deconvoluting doublets from single-cell RNA-sequencing data
 
 ![logo](http://www.altanalyze.org/DoubletDecon/wordcloud.png)
 
 See our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for more information on DoubletDecon.
+
+# Updates - Version 1.1.2 : September 5th, 2019 #
+  * NEW! Improved_Seurat_Pre_Process() is now available to replace Seurat_Pre_Process() for those who would prefer to work directly with a Seurat Object as input instead of individual files saved from a Seurat workflow. Workflows following the protocol found at https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html, from the provided script (seurat-3.0.R), or similar will be sufficent for this new function.
+  * Resolved compatibility issues with Seurat version 3
 
 # Updates - Version 1.1.1 : May 29th, 2019 #
  * Change default for only50 to FALSE (from TRUE) to reflect best practices in running DoubletDecon
@@ -27,7 +31,7 @@ See our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for m
  * Speed up run time for users who do not use the Rescue step (PMF=FALSE).
  * Remove requirement for 'as.color' function.
 
-## Version 1.0.1 : December 26th, 2018
+# Updates - Version 1.0.1 : December 26th, 2018 #
  * Additional "Remove" step option to create synthetic doublet centroids with 30%/70% and 70%/30% parent cell contribution instead of simply 50%/50% (only50=FALSE).
  * Heatmap generation corrected for large datasets (>5000 cells).
  * "Rescue" step modification from t-tests for all clusters to ANOVA with Tukey post-hoc test in only putative doublet clusters. Minimum of 4 unique genes as hardcoded default.
@@ -65,6 +69,7 @@ DoubletDecon requires the following R packages:
  * foreach
  * doParallel
  * stringr
+ * Seurat (for Improved_Seurat_Pre_Process only)
  
 These can be installed with:
 
@@ -82,6 +87,25 @@ Additionally, the use of the cell cycle removal option requires an internet conn
 ## Seurat data only: ##
 
 ```javascript
+Improved_Seurat_Pre_Process(seuratObject, num_genes=50, write_files=FALSE)
+```
+
+#### Arguments ####
+
+* seuratObject Seurat object following a protocol such as https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html
+* num_genes Number of genes for the top_n function. Default is 50.
+* write_files Save the output files to .txt format. Defauly is FALSE.
+
+
+#### Value ####
+
+* newExpressionFile - Seurat expression file in ICGS format (ICGS genes)
+* newFullExpressionFile - Seurat expression file in ICGS format (all genes)
+* newGroupsFile - Groups file ICGS format
+
+
+<s>
+```javascript
 Seurat_Pre_Process(expressionFile, genesFile, clustersFile)
 ```
 
@@ -95,6 +119,7 @@ Seurat_Pre_Process(expressionFile, genesFile, clustersFile)
 
 * newExpressionFile - Seurat expression file in ICGS format (used as 'rawDataFile')
 * newGroupsFile - Groups file ICGS format (used as 'groupsFile')
+</s>
 
 ## Seurat and ICGS data: ##
 
@@ -140,17 +165,23 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 
 # Example #
 
-Data for this example can be found in this GitHub, and in combination with the below function calls, can reproduce the results from Figure 5 (Identification of Experimentally Verified Doublets from PBMC) of the bioRxiv pre-print.
-
-Update: This figure may change for the final publication as some of the functions work differently in Version 1.0.1. The example will still work but it will no longer exactly match the preprint.
+Data for this example can be found in this GitHub repository. Examples are given for both Seurat_Pre_Process() and Improved_Seurat_Pre_Process(), though the latter is prefered if using Seurat 3.
 
 ```javascript
 location="/Users/xxx/xxx/" #Update as needed 
+
+<s>
+#Seurat_Pre_Process()
 expressionFile=paste0(location, "counts.txt")
 genesFile=paste0(location, "Top50Genes.txt")
 clustersFile=paste0(location, "Cluster.txt")
-
 newFiles=Seurat_Pre_Process(expressionFile, genesFile, clustersFile)
+</s>
+
+#Improved_Seurat_Pre_Process()
+seuratObject=readRDS("seurat.rds")
+newFiles=Improved_Seurat_Pre_Process(seuratObject, num_genes=50, write_files=FALSE)
+
 filename="PBMC_example"
 write.table(newFiles$newExpressionFile, paste0(location, filename, "_expression"), sep="\t")
 write.table(newFiles$newFullExpressionFile, paste0(location, filename, "_fullExpression"), sep="\t")
