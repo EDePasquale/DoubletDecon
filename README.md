@@ -4,8 +4,14 @@ Deconvoluting doublets from single-cell RNA-sequencing data
 
 ![logo](http://www.altanalyze.org/DoubletDecon/wordcloud.png)
 
-See our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for more information on DoubletDecon.
+See our [Cell Reports paper](https://www.cell.com/cell-reports/fulltext/S2211-1247(19)31286-0) for more information on DoubletDecon. Also see our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for an older description of the algorithm.
 
+
+# Updates - Version 1.1.3 : November 6th, 2019 #
+  * NEW! Integrated ICGS2_to_ICGS1() is now available to support input files from ICGS version 2. You should not have to make any changes in your DoubletDecon workflow to use ICGS version 2 instead of ICGS version 1
+  * Improved_Seurat_Pre_Process() now loads dplyr at the beginning of the fuction (thanks chansigit for the feedback!)
+  * Fixed bugs in Remove_Cell_Cycle() that was preventing it from running on certain datasets
+  
 # Updates - Version 1.1.2 : September 5th, 2019 #
   * NEW! Improved_Seurat_Pre_Process() is now available to replace Seurat_Pre_Process() for those who would prefer to work directly with a Seurat Object as input instead of individual files saved from a Seurat workflow. Workflows following the protocol found at https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html, from the provided script (seurat-3.0.R), or similar will be sufficent for this new function.
   * Resolved compatibility issues with Seurat version 3

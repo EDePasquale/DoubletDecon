@@ -80,19 +80,35 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   if(is.logical(only50)!=TRUE){print("ERROR: only50 must be TRUE or FALSE!")}
   if(is.numeric(min_uniq)!=TRUE){print("ERROR: min_uniq must be numeric!")}
 
-
+  
+  
   #Read in data
   cat("Reading data...", file=log_file_name, append=TRUE, sep="\n")
   cat("Reading data...", sep="\n")
+  
+  ICGS2_flag=F #set for checking if the input file is in ICGS2 format
+  
   if(class(rawDataFile)=="character"){
-    rawData=read.table(rawDataFile, sep="\t",header=T, row.names=1)
+    #NEW: test for ICGS2
+    rawDataHeader=read.table(rawDataFile, sep="\t",header=F, row.names=1, nrows=1, stringsAsFactors = F)
+    if(length(grep(":", rawDataHeader[2]))==1){
+      ICGS2_flag=T
+      ICGS2=ICGS2_to_ICGS1(rawDataFile, groupsFile, log_file_name)
+      rawData=ICGS2$rawData
+    }else{
+      rawData=read.table(rawDataFile, sep="\t",header=T, row.names=1)
+    }
   }else{
+    cat("WARNING: if using ICGS2 file input, please import 'rawDataFile' and 'groupsFile' as path/location instead of an R object." , sep="\n")
     rawData=rawDataFile
   }
 
   if(class(groupsFile)=="character"){
-    groups=read.table(groupsFile, sep="\t",header=F, row.names=1)
-
+    if(ICGS2_flag==T){
+      groups=ICGS2$groups
+    }else{
+      groups=read.table(groupsFile, sep="\t",header=F, row.names=1)
+    }
   }else{
     groups=groupsFile
   }

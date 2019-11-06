@@ -12,6 +12,9 @@
 
 Improved_Seurat_Pre_Process <- function(seuratObject, num_genes=50, write_files=FALSE){
 
+  #load dplyr
+  require(dplyr)
+  
   #extract expression file
   expression=as.data.frame(seuratObject@assays[["RNA"]]@counts)
   
