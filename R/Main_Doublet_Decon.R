@@ -34,7 +34,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   cat("Loading packages...", sep="\n")
   suppressMessages(require(DeconRNASeq))
   suppressMessages(require(gplots))
-  suppressMessages(require(dplyr))
+  suppressMessages(require(plyr))
   suppressMessages(require(MCL))
   suppressMessages(require(clusterProfiler))
   suppressMessages(require(mygene))
