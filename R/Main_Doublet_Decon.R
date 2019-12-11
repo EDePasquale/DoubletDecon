@@ -17,6 +17,7 @@
 #' @param num_doubs The user defined number of doublets to make for each pair of clusters. Default is 100.
 #' @param only50 use only synthetic doublets created with 50\%/50\% mix of parent cells, as opposed to the extended option of 30\%/70\% and 70\%/30\%, default is FALSE.
 #' @param min_uniq minimum number of unique genes required for a cluster to be rescued
+#' @param nCores number of cores used for parallel processing. Default is 4.
 #' @return data_processed = new expression file (cleaned).
 #' @return groups_processed = new groups file (cleaned).
 #' @return PMF_results = pseudo marker finder t-test results (gene by cluster).
@@ -28,7 +29,7 @@
 #' @keywords doublet decon main
 #' @export
 
-Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDataFile=NULL, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, PMF=TRUE, useFull=FALSE, heatmap=TRUE, centroids=FALSE, num_doubs=100, only50=FALSE, min_uniq=4){
+Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDataFile=NULL, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, PMF=TRUE, useFull=FALSE, heatmap=TRUE, centroids=FALSE, num_doubs=100, only50=FALSE, min_uniq=4, nCores=4){
 
   #load required packages
   cat("Loading packages...", sep="\n")
@@ -80,14 +81,14 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   if(is.logical(only50)!=TRUE){print("ERROR: only50 must be TRUE or FALSE!")}
   if(is.numeric(min_uniq)!=TRUE){print("ERROR: min_uniq must be numeric!")}
 
-  
-  
+
+
   #Read in data
   cat("Reading data...", file=log_file_name, append=TRUE, sep="\n")
   cat("Reading data...", sep="\n")
-  
+
   ICGS2_flag=F #set for checking if the input file is in ICGS2 format
-  
+
   if(class(rawDataFile)=="character"){
     #NEW: test for ICGS2
     rawDataHeader=read.table(rawDataFile, sep="\t",header=F, row.names=1, nrows=1, stringsAsFactors = F)
@@ -222,9 +223,9 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
     cat("Step 3: Rescuing cells with unique gene expression...", file=log_file_name, append=TRUE, sep="\n")
     cat("Step 3: Rescuing cells with unique gene expression...", sep="\n")
     if(useFull==TRUE){
-      PMFresults=Pseudo_Marker_Finder(as.data.frame(groups), redu_data2=paste0(location, "data_processed_reclust_", filename, ".txt"), full_data2=fullDataFile, min_uniq=min_uniq, log_file_name=log_file_name)
+      PMFresults=Pseudo_Marker_Finder(as.data.frame(groups), redu_data2=paste0(location, "data_processed_reclust_", filename, ".txt"), full_data2=fullDataFile, min_uniq=min_uniq, log_file_name=log_file_name, nCores=nCores)
     }else{
-      PMFresults=Pseudo_Marker_Finder(as.data.frame(groups), redu_data2=paste0(location, "data_processed_reclust_", filename, ".txt"), full_data2=NULL, min_uniq=min_uniq, log_file_name=log_file_name)
+      PMFresults=Pseudo_Marker_Finder(as.data.frame(groups), redu_data2=paste0(location, "data_processed_reclust_", filename, ".txt"), full_data2=NULL, min_uniq=min_uniq, log_file_name=log_file_name, nCores=nCores)
     }
     if(write==TRUE){
       write.table(PMFresults, paste0(location, "new_PMF_results_", filename, ".txt"), sep="\t")
@@ -336,7 +337,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   #last message
   cat("Finished!", file=log_file_name, append=TRUE, sep="\n")
   cat("Finished!", sep="\n")
-  
+
   #close the log file connection
   close(log_con)
 
