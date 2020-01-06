@@ -6,11 +6,12 @@
 #' @param full_data2 cleaned full expression matrix from Clean_Up_Input.
 #' @param min_uniq minimum number of unique genes required for a cluster to be rescued
 #' @param log_file_name used for saving run notes to log file
+#' @param nCores number of cores to be used during rescue step. Default is -1 for automatically detected.
 #' @return new_table - non-doublet clusters, as determined by the "Remove" and "Rescue" steps.
 #' @keywords Marker Finder ANOVA
 #' @export
 
-Pseudo_Marker_Finder<-function(groups, redu_data2, full_data2, min_uniq=4, log_file_name=log_file_name){
+Pseudo_Marker_Finder<-function(groups, redu_data2, full_data2, min_uniq=4, log_file_name=log_file_name, nCores=-1){
   
   #Define the expression file
   if(!is.null(full_data2)){
@@ -44,7 +45,12 @@ Pseudo_Marker_Finder<-function(groups, redu_data2, full_data2, min_uniq=4, log_f
   nLines = countLines(rawFilePath)[1]
   
   #Run in parallel the code for each chunk of data read from the file
-  registerDoParallel(makeCluster(detectCores()))
+  if(nCores==-1){
+    registerDoParallel(makeCluster(detectCores()))
+  }else{
+    registerDoParallel(makeCluster(nCores))
+  }
+  
   
   anovaResult = foreach(linePos = 0:floor(nLines / genesPerTime), .packages = c("dplyr"),
                         .combine = "rbind")  %dopar%  {

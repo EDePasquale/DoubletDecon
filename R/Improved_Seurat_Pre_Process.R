@@ -28,7 +28,11 @@ Improved_Seurat_Pre_Process <- function(seuratObject, num_genes=50, write_files=
 
   #Find and replace "-"
   colnames(expression)=gsub("-",".",colnames(expression))
-  clusters[,1]=gsub("-",".",clusters[,1])
+  if(class(clusters[,1])=="character"){ #I believe this condition will never be reached but I am leaving it in as legacy code in case there is an edge case I'm missing!
+    clusters[,1]=gsub("-",".",clusters[,1])
+  }else{
+    row.names(clusters)=gsub("-",".",row.names(clusters)) #added to fix bug
+  }
 
   #Start cluster numbers at 1
   if(class(genes$cluster)=="factor"){

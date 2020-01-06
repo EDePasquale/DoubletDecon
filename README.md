@@ -6,6 +6,9 @@ Deconvoluting doublets from single-cell RNA-sequencing data
 
 See our [Cell Reports paper](https://www.cell.com/cell-reports/fulltext/S2211-1247(19)31286-0) for more information on DoubletDecon. Also see our [bioRxiv](https://www.biorxiv.org/content/early/2018/07/08/364810) for an older description of the algorithm.
 
+# Updates - Version 1.1.4 : January 6th, 2020 #
+  * Fixed bug in Improved_Seurat_Pre_Process caused by an incorrect assumption that cell names were in the first column and not the column names in the Seurat expression object
+  * Added new parameter to Main_Doublet_Decon to allow for manual override of the automatic cores detection used in the 'rescue' step. The default is set to -1, which triggers automatic detection and should replicate the existing experience.
 
 # Updates - Version 1.1.3 : November 6th, 2019 #
   * NEW! Integrated ICGS2_to_ICGS1() is now available to support input files from ICGS version 2. You should not have to make any changes in your DoubletDecon workflow to use ICGS version 2 instead of ICGS version 1
@@ -133,7 +136,7 @@ Seurat_Pre_Process(expressionFile, genesFile, clustersFile)
 Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
   fullDataFile = NULL, removeCC = FALSE, species = "mmu", rhop = 1,
   write = TRUE, PMF = TRUE, useFull = FALSE, heatmap = TRUE, centroids=FALSE, num_doubs=100, 
-  only50=FALSE, min_uniq=4)
+  only50=FALSE, min_uniq=4, nCores=-1)
 ```
 
 #### Arguments ####
@@ -155,6 +158,7 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 * num_doubs: The user defined number of doublets to make for each pair of clusters. Default is 100.
 * only50: use only synthetic doublets created with 50%/50% mix of parent cells, as opposed to the extended option of 30%/70% and 70%/30%, default is FALSE.
 * min_uniq: minimum number of unique genes required for a cluster to be rescued, default is 4.
+* nCores: number of cores to be used during rescue step. Default is -1 for automatically detected.
 
 #### Value ####
 
@@ -208,5 +212,6 @@ results=Main_Doublet_Decon(rawDataFile=newFiles$newExpressionFile,
                            centroids=TRUE,
                            num_doubs=100, 
                            only50=FALSE,
-                           min_uniq=4)
+                           min_uniq=4,
+                           nCores=-1)
 ```                           

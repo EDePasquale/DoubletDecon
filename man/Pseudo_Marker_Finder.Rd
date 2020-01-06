@@ -17,6 +17,8 @@ Pseudo_Marker_Finder(groups, redu_data2, full_data2, min_uniq = 4,
 \item{min_uniq}{minimum number of unique genes required for a cluster to be rescued}
 
 \item{log_file_name}{used for saving run notes to log file}
+
+\item{nCores}{number of cores to be used during rescue step. Default is -1 for automatically detected.}
 }
 \value{
 new_table - non-doublet clusters, as determined by the "Remove" and "Rescue" steps.

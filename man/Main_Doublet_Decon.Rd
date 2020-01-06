@@ -41,6 +41,8 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 \item{only50}{use only synthetic doublets created with 50\%/50\% mix of parent cells, as opposed to the extended option of 30\%/70\% and 70\%/30\%, default is FALSE.}
 
 \item{min_uniq}{minimum number of unique genes required for a cluster to be rescued}
+
+\item{nCores}{number of cores to be used during rescue step. Default is -1 for automatically detected.}
 }
 \value{
 data_processed = new expression file (cleaned).
