@@ -33,18 +33,33 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
 
   #load required packages
   cat("Loading packages...", sep="\n")
-  suppressMessages(require(DeconRNASeq))
-  suppressMessages(require(gplots))
-  suppressMessages(require(plyr))
-  suppressMessages(require(MCL))
-  suppressMessages(require(clusterProfiler))
-  suppressMessages(require(mygene))
-  suppressMessages(require(tidyr))
-  suppressMessages(require(R.utils)) #for new PMF
-  suppressMessages(require(dplyr)) #for new PMF
-  suppressMessages(require(foreach)) #for new PMF
-  suppressMessages(require(doParallel)) #for new PMF
-  suppressMessages(require(stringr)) #for new PMF
+  options(install.packages.compile.from.source = "never")
+  if(!("BiocManager" %in% installed.packages()[, "Package"])) install.packages("BiocManager")
+  library(BiocManager)
+  if(!("DeconRNASeq" %in% installed.packages()[, "Package"])) BiocManager::install("DeconRNASeq", update=F)
+  if(!("gplots" %in% installed.packages()[, "Package"])) install.packages("gplots")
+  if(!("plyr" %in% installed.packages()[, "Package"])) install.packages("plyr")
+  if(!("MCL" %in% installed.packages()[, "Package"])) BiocManager::install("MCL", update=F)
+  if(!("clusterProfiler" %in% installed.packages()[, "Package"])) BiocManager::install("clusterProfiler", update=F)
+  if(!("mygene" %in% installed.packages()[, "Package"])) BiocManager::install("mygene", update=F)
+  if(!("tidyr" %in% installed.packages()[, "Package"])) install.packages("tidyr")
+  if(!("R.utils" %in% installed.packages()[, "Package"])) install.packages("R.utils")
+  if(!("dplyr" %in% installed.packages()[, "Package"])) install.packages("dplyr")
+  if(!("foreach" %in% installed.packages()[, "Package"])) install.packages("foreach")
+  if(!("doParallel" %in% installed.packages()[, "Package"])) install.packages("doParallel")
+  if(!("stringr" %in% installed.packages()[, "Package"])) install.packages("stringr")
+  library(DeconRNASeq)
+  library(gplots)
+  library(plyr)
+  library(MCL)
+  library(clusterProfiler)
+  library(mygene)
+  library(tidyr)
+  library(R.utils)
+  library(dplyr)
+  library(foreach)
+  library(doParallel)
+  library(stringr)
 
   #Set up log file
   log_file_name=paste0(location, filename,".log")
