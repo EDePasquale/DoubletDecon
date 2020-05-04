@@ -2,12 +2,12 @@
 % Please edit documentation in R/Main_Doublet_Decon.R
 \name{Main_Doublet_Decon}
 \alias{Main_Doublet_Decon}
-\title{Main DoubletDecon v1.0.1}
+\title{Main DoubletDecon v1.1.4}
 \usage{
 Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
   fullDataFile = NULL, removeCC = FALSE, species = "mmu", rhop = 1,
   write = TRUE, PMF = TRUE, useFull = FALSE, heatmap = TRUE,
-  centroids = FALSE, num_doubs = 100, only50 = FALSE, min_uniq = 4)
+  centroids = TRUE, num_doubs = 100, only50 = FALSE, min_uniq = 4, nCores=-1)
 }
 \arguments{
 \item{rawDataFile}{Name of file containing ICGS or Seurat expression data (gene by cell)}
@@ -34,7 +34,7 @@ Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
 
 \item{heatmap}{Boolean value for whether to generate heatmaps. Default is TRUE. Can be slow to datasets larger than ~3000 cells.}
 
-\item{centroids}{Use centroids as references in deconvolution instead of the default medoids.}
+\item{centroids}{Use centroids as references in deconvolution instead of medoids. Default is TRUE.}
 
 \item{num_doubs}{The user defined number of doublets to make for each pair of clusters. Default is 100.}
 
