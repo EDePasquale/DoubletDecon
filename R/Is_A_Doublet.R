@@ -12,17 +12,17 @@
 #' @export
 
 Is_A_Doublet<-function(data, newMedoids, groups, synthProfiles, log_file_name){
-
+  
   #create data frame to store doublets table
   isADoublet=data.frame(matrix(ncol=4,nrow=(ncol(data)-1)))
   rownames(isADoublet)=colnames(data)[2:ncol(data)]
   rownames(newMedoids)=rownames(data)[2:nrow(data)]
-
+  
   #run DeconRNASeq with new medoids and data
   results=DeconRNASeq(data[2:nrow(data), 2:ncol(data)], newMedoids)
   resultsreadable=round(results$out.all*100,2)
   rownames(resultsreadable)=rownames(isADoublet) #make an easily readable results table
-
+  
   #get average profiles for cell clusters
   averagesReal=as.data.frame(matrix(ncol=ncol(resultsreadable), nrow=length(unique(groups[,2]))))
   colnames(averagesReal)=colnames(resultsreadable)
@@ -31,10 +31,10 @@ Is_A_Doublet<-function(data, newMedoids, groups, synthProfiles, log_file_name){
     subsetResults=resultsreadable[row.names(resultsreadable) %in% cells,]
     averagesReal[clust,]=apply(subsetResults,2,mean)
   }
-
+  
   #create a table with average profiles of cell clusters and synthetic combinations
   allProfiles=rbind(averagesReal, synthProfiles)
-
+  
   #this section determines the profile with the highest correlation to the given cell and determines if it is one of the doublet profiles
   for(cell in 1:nrow(isADoublet)){
     if(ncol(resultsreadable)==2){ #If there are only 2 groups, correlation won't work, so I use minimum euclidean distance instead
@@ -65,15 +65,15 @@ Is_A_Doublet<-function(data, newMedoids, groups, synthProfiles, log_file_name){
         isADoublet[cell,3]=FALSE
       }
     }
-
+    
   }
-
+  
   isADoublet[,4]=groups[,2]
-
+  
   colnames(isADoublet)=c("Distance","Cell_Types","isADoublet","Group_Cluster")
-
+  
   cat(paste0(length(which(isADoublet$isADoublet==TRUE)),"/", nrow(isADoublet),  " possible doublets removed"), file=log_file_name, append=TRUE, sep="\n")
-
+  
   return(list(isADoublet=isADoublet, resultsreadable=resultsreadable))
-
+  
 }

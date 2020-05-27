@@ -13,7 +13,7 @@
 #' @param PMF Use step 2 (unique gene expression) in doublet determination criteria. Default is TRUE.
 #' @param useFull Use full gene list for PMF analysis. Requires fullDataFile. Default is FALSE.
 #' @param heatmap Boolean value for whether to generate heatmaps. Default is TRUE. Can be slow to datasets larger than ~3000 cells.
-#' @param centroids Use centroids as references in deconvolution instead of the default medoids.
+#' @param centroids Use centroids as references in deconvolution instead of medoids. Default is TRUE.
 #' @param num_doubs The user defined number of doublets to make for each pair of clusters. Default is 100.
 #' @param only50 use only synthetic doublets created with 50\%/50\% mix of parent cells, as opposed to the extended option of 30\%/70\% and 70\%/30\%, default is FALSE.
 #' @param min_uniq minimum number of unique genes required for a cluster to be rescued
@@ -29,25 +29,10 @@
 #' @keywords doublet decon main
 #' @export
 
-Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDataFile=NULL, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, PMF=TRUE, useFull=FALSE, heatmap=TRUE, centroids=FALSE, num_doubs=100, only50=FALSE, min_uniq=4, nCores=-1){
+Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDataFile=NULL, removeCC=FALSE, species="mmu", rhop=1, write=TRUE, PMF=TRUE, useFull=FALSE, heatmap=TRUE, centroids=TRUE, num_doubs=100, only50=FALSE, min_uniq=4, nCores=-1){
 
   #load required packages
   cat("Loading packages...", sep="\n")
-  options(install.packages.compile.from.source = "never")
-  if(!("BiocManager" %in% installed.packages()[, "Package"])) install.packages("BiocManager")
-  library(BiocManager)
-  if(!("DeconRNASeq" %in% installed.packages()[, "Package"])) BiocManager::install("DeconRNASeq", update=F)
-  if(!("gplots" %in% installed.packages()[, "Package"])) install.packages("gplots")
-  if(!("plyr" %in% installed.packages()[, "Package"])) install.packages("plyr")
-  if(!("MCL" %in% installed.packages()[, "Package"])) BiocManager::install("MCL", update=F)
-  if(!("clusterProfiler" %in% installed.packages()[, "Package"])) BiocManager::install("clusterProfiler", update=F)
-  if(!("mygene" %in% installed.packages()[, "Package"])) BiocManager::install("mygene", update=F)
-  if(!("tidyr" %in% installed.packages()[, "Package"])) install.packages("tidyr")
-  if(!("R.utils" %in% installed.packages()[, "Package"])) install.packages("R.utils")
-  if(!("dplyr" %in% installed.packages()[, "Package"])) install.packages("dplyr")
-  if(!("foreach" %in% installed.packages()[, "Package"])) install.packages("foreach")
-  if(!("doParallel" %in% installed.packages()[, "Package"])) install.packages("doParallel")
-  if(!("stringr" %in% installed.packages()[, "Package"])) install.packages("stringr")
   library(DeconRNASeq)
   library(gplots)
   library(plyr)
@@ -77,6 +62,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   cat(paste0("num_doubs: ",num_doubs), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("only50: ",only50), file=log_file_name, append=TRUE, sep="\n")
   cat(paste0("min_uniq: ",min_uniq), file=log_file_name, append=TRUE, sep="\n")
+  cat(paste0("nCores: ",nCores), file=log_file_name, append=TRUE, sep="\n")
 
   #Check variables
   if(is.character(rawDataFile)!=TRUE & is.data.frame(rawDataFile)!=TRUE){print("ERROR: rawDataFile must be a character string!")}
@@ -95,8 +81,6 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
   if(is.numeric(num_doubs)!=TRUE){print("ERROR: numdoubs must be numeric!")}
   if(is.logical(only50)!=TRUE){print("ERROR: only50 must be TRUE or FALSE!")}
   if(is.numeric(min_uniq)!=TRUE){print("ERROR: min_uniq must be numeric!")}
-
-  
   
   #Read in data
   cat("Reading data...", file=log_file_name, append=TRUE, sep="\n")
@@ -112,7 +96,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
       ICGS2=ICGS2_to_ICGS1(rawDataFile, groupsFile, log_file_name)
       rawData=ICGS2$rawData
     }else{
-      rawData=read.table(rawDataFile, sep="\t",header=T, row.names=1)
+      rawData=read.table(rawDataFile, sep="\t",header=T, row.names=1, stringsAsFactors = T)
     }
   }else{
     cat("WARNING: if using ICGS2 file input, please import 'rawDataFile' and 'groupsFile' as path/location instead of an R object." , sep="\n")
@@ -123,7 +107,7 @@ Main_Doublet_Decon<-function(rawDataFile, groupsFile, filename, location, fullDa
     if(ICGS2_flag==T){
       groups=ICGS2$groups
     }else{
-      groups=read.table(groupsFile, sep="\t",header=F, row.names=1)
+      groups=read.table(groupsFile, sep="\t",header=F, row.names=1, stringsAsFactors = T)
     }
   }else{
     groups=groupsFile

@@ -5,7 +5,7 @@
 \title{Pseudo MarkerFinder}
 \usage{
 Pseudo_Marker_Finder(groups, redu_data2, full_data2, min_uniq = 4,
-  log_file_name = log_file_name)
+  log_file_name = log_file_name, nCores = -1)
 }
 \arguments{
 \item{groups}{Processed groups file from Clean_Up_Input.}

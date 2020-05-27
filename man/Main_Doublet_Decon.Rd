@@ -2,12 +2,13 @@
 % Please edit documentation in R/Main_Doublet_Decon.R
 \name{Main_Doublet_Decon}
 \alias{Main_Doublet_Decon}
-\title{Main DoubletDecon v1.1.4}
+\title{Main DoubletDecon v1.1.5}
 \usage{
 Main_Doublet_Decon(rawDataFile, groupsFile, filename, location,
   fullDataFile = NULL, removeCC = FALSE, species = "mmu", rhop = 1,
   write = TRUE, PMF = TRUE, useFull = FALSE, heatmap = TRUE,
-  centroids = TRUE, num_doubs = 100, only50 = FALSE, min_uniq = 4, nCores=-1)
+  centroids = TRUE, num_doubs = 100, only50 = FALSE, min_uniq = 4,
+  nCores = -1)
 }
 \arguments{
 \item{rawDataFile}{Name of file containing ICGS or Seurat expression data (gene by cell)}

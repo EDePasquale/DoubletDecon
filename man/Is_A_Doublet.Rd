@@ -4,7 +4,8 @@
 \alias{Is_A_Doublet}
 \title{Is A Doublet}
 \usage{
-Is_A_Doublet(data, newMedoids, groups, synthProfiles, log_file_name)
+Is_A_Doublet(data, newMedoids, groups, synthProfiles, synth_DRS_results,
+  log_file_name)
 }
 \arguments{
 \item{data}{Processed data from Clean_Up_Input (or Remove_Cell_Cycle).}

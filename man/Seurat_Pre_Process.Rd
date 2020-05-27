@@ -14,11 +14,13 @@ Seurat_Pre_Process(expressionFile, genesFile, clustersFile)
 \item{clustersFile}{Cluster list from Seurat}
 }
 \value{
-newExpressionFile - Seurat expression file in ICGS format
+newExpressionFile - Seurat expression file in ICGS format (ICGS genes)
+
+newFullExpressionFile - Seurat expression file in ICGS format (all genes)
 
 newGroupsFile - Groups file ICGS format
 }
 \description{
-This function uses t-tests to look for unique gene expression in each cluster.
+This function has been replaced with Improved_Seurat_Pre_Process for Seurat Version 3.
 }
 \keyword{Seurat}

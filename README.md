@@ -8,6 +8,11 @@ See our [Cell Reports paper](https://www.cell.com/cell-reports/fulltext/S2211-12
 
 NEW! See our protocol on [bioRxiv](https://www.biorxiv.org/content/10.1101/2020.04.23.058156v1) for more description on how to use DoubletDecon.
 
+# Updates - Version 1.1.5 : May 27th, 2020 #
+  * Signed and notarized DoubletDeconUI app to help limit Gatekeeper issues with new MacOS
+  * NEW! Vignette in the Wiki portion of this repository for playing with DoubletDecon on real data
+  * Updated DESCRIPTION and Main_Doublet_Decon() function to improve the installation experience
+  
 # Updates - Version 1.1.4 : January 6th, 2020 #
   * Fixed bug in Improved_Seurat_Pre_Process caused by an incorrect assumption that cell names were in the first column and not the column names in the Seurat expression object
   * Added new parameter to Main_Doublet_Decon to allow for manual override of the automatic cores detection used in the 'rescue' step. The default is set to -1, which triggers automatic detection and should replicate the existing experience.
