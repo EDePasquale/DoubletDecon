@@ -8,6 +8,9 @@ See our [Cell Reports paper](https://www.cell.com/cell-reports/fulltext/S2211-12
 
 NEW! See our protocol on [bioRxiv](https://www.biorxiv.org/content/10.1101/2020.04.23.058156v1) for more description on how to use DoubletDecon.
 
+# URGENT NOTE : July 2nd, 2020 #
+  * It has been brought to my attention that the UI version of DoubletDecon distributed with the latest version (1.1.5) does not work. We are actively working to solve this as soon as possible. However, the command line version of DoubletDecon is still working. If you would like to use the UI version still, you can open R and use the command "shiny::runGist('a81cdc2aea5742c08e5fc3fa66d47698', launch.browser=TRUE)". This temporary solution will work until the application is fixed. Thank you for your patience!
+
 # Updates - Version 1.1.5 : May 27th, 2020 #
   * Signed and notarized DoubletDeconUI app to help limit Gatekeeper issues with new MacOS
   * NEW! Vignette in the Wiki portion of this repository for playing with DoubletDecon on real data
