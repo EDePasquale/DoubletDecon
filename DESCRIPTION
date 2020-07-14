@@ -1,35 +1,35 @@
 Package: DoubletDecon
 Title: A Package to Identify Doublets and Doublet Clusters Based on Deconvolution Analysis and Unique Gene Expression
-Version: 1.1.5
+Version: 1.1.6
 Authors@R: person("Erica", "DePasquale", email = "careyea@mail.uc.edu", role = c("aut", "cre"))
 Description: This package is designed to identify doublets in single-cell RNA-seq data sets. It achieves this in a two-fold manner: 1) Identifying putative doublets by comparing deconvolution-based profiles of each cell to those of average synthetic doublets, which are created based on specified initial groups clusters. 2) Identifying doublet clusters by combining frequency of called doublets within a cluster (from step 1) and lack of unique gene expression compared to other clusters. Together, these results can identify individual doublets and doublet clusters for removal before continuing data analysis.
-Depends: R (>= 3.5.0)
+Depends: R (>= 3.6.1)
 biocViews:
 Imports:
-  DeconRNASeq,
-  plyr,
-  dplyr,
-  stringr,
-  tidyr,
-  foreach,
-  doParallel,
-  MCL,
-  R.utils,
-  mygene,
-  clusterProfiler,
-  gplots,
-  Seurat,
-  shiny,
-  shinyDirectoryInput,
-  shinyFiles,
-  ggplot2,
-  reshape2,
-  shinyjs,
-  V8,
-  umap,
-  shinycssloaders,
-  scales,
-  png
+  DeconRNASeq (>= 01.26.0),
+  plyr (>= 1.8.6),
+  dplyr (>= 1.0.0),
+  stringr (>= 1.4.0),
+  tidyr (>= 1.1.0),
+  foreach (>= 1.5.0),
+  doParallel (>= 1.0.15),
+  MCL (>= 1.0),
+  R.utils (>= 2.9.2),
+  mygene (>= 1.20.0),
+  clusterProfiler (>= 3.12.0),
+  gplots (>= 3.0.4),
+  Seurat (>= 3.1.0),
+  shiny (>= 1.3.2),
+  shinyDirectoryInput (>= 0.2.0),
+  shinyFiles (>= 0.7.3),
+  ggplot2 (>= 3.3.2),
+  reshape2 (>= 1.4.3),
+  shinyjs (>= 1.0),
+  V8 (>= 2.3),
+  umap (>= 0.2.3.1),
+  shinycssloaders (>= 0.2.0),
+  scales (>= 1.0.0),
+  png (>= 0.1-7)
 Remotes: wleepang/shiny-directory-input
 License: MIT
 Encoding: UTF-8
