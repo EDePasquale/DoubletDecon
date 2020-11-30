@@ -8,6 +8,9 @@ See our [Cell Reports paper](https://www.cell.com/cell-reports/fulltext/S2211-12
 
 NEW! See our protocol on [bioRxiv](https://www.biorxiv.org/content/10.1101/2020.04.23.058156v1) for more description on how to use DoubletDecon.
 
+# Updates: November 30th, 2020 #
+ * Improved_Seurat_Pre_Process() — This function now automatically upgrades your Seurat object to work with the version of Seurat you have installed (this is to help with the transition to Seurat version 4). Users are now able to specify if the expression values should be pulled from the @counts, @data, or @scaled.data slot in the Seurat object. Redundant code was removed.  The section of code using FindAllMarkers() has been updated to look for the column titled "avg_log2FC" in Seurat 4 and "avg_logFC" in Seurat 3 (3.2.2 and 3.9.9 tested). Cluster numbers should now not increment by 2, but by 1 as was originally intended.
+
 # URGENT NOTE : July 2nd, 2020 #
   * It has been brought to my attention that the UI version of DoubletDecon distributed with the latest version (1.1.5) does not work. We are actively working to solve this as soon as possible. However, the command line version of DoubletDecon is still working. If you would like to use the UI version still, you can open R and use the command:
   
