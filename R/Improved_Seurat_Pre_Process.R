@@ -4,7 +4,7 @@
 #' @param seuratObject Seurat object following a protocol such as https://satijalab.org/seurat/v3.1/pbmc3k_tutorial.html
 #' @param num_genes Number of genes for the top_n function. Default is 50.
 #' @param write_files Save the output files to .txt format. Default is FALSE.
-#' @param data_type Data slot to pull expression from in the Seurat object: count or data. Default is "counts".
+#' @param data_type Data slot to pull expression from in the Seurat object: counts or data. Default is "counts".
 #' @return newExpressionFile - Seurat expression file in ICGS format (ICGS genes)
 #' @return newFullExpressionFile - Seurat expression file in ICGS format (all genes)
 #' @return newGroupsFile - Groups file ICGS format
@@ -25,7 +25,7 @@ Improved_Seurat_Pre_Process <- function(seuratObject, num_genes=50, write_files=
   }else if(data_type=="data"){
     expression=as.data.frame(seuratObject@assays[["RNA"]]@data)
   }else if(data_type=="scaled.data"){
-    expression=as.data.frame(seuratObject@assays[["RNA"]]@scaled.data)
+    expression=as.data.frame(seuratObject@assays[["RNA"]]@scale.data)
   }
 
   #extract marker genes
